@@ -7,7 +7,7 @@ import { dashboardSnapshot } from "@/lib/mock-data";
 export default function CollectionPage() {
   return (
     <AppShell currentPath="/collection">
-      <Card className="p-6 sm:p-8">
+      <Card className="bg-hero-grid p-6 sm:p-8">
         <SectionHeader
           eyebrow="Creature Collection"
           title="Your caught campus creatures"

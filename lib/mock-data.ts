@@ -2,6 +2,8 @@ import {
   CollectionEntry,
   Creature,
   DashboardSnapshot,
+  Friend,
+  StudyFile,
   StudySession,
   StudySpot,
   TaskItem
@@ -223,3 +225,76 @@ export function getSpotById(id: string) {
 export function getCreatureById(id: string) {
   return creatures.find((creature) => creature.id === id);
 }
+
+export const friends: Friend[] = [
+  { id: "friend-devin", name: "Devin", major: "Computer Science", avatar: "D" },
+  { id: "friend-sarah", name: "Sarah Chen", major: "Economics", avatar: "S" },
+  { id: "friend-marcus", name: "Marcus Lee", major: "Electrical Engineering", avatar: "M" },
+  { id: "friend-priya", name: "Priya Nair", major: "Biology", avatar: "P" }
+];
+
+export const studyFiles: StudyFile[] = [
+  {
+    id: "file-penguins",
+    name: "Literature Review — Penguins",
+    fileType: "PDF",
+    sizeLabel: "64 KB",
+    uploadedAt: "2026-03-08T14:00:00.000Z",
+    subject: "BIO 301",
+    description: "A literature review examining penguin population trends, habitat changes, and climate adaptation strategies across Antarctic and sub-Antarctic regions.",
+    sharedWith: ["friend-priya"],
+    fileUrl: "/files/literature-review-penguins.pdf"
+  },
+  {
+    id: "file-hw6",
+    name: "HW 6 — Problem Set",
+    fileType: "Assignment",
+    sizeLabel: "184 KB",
+    uploadedAt: "2026-03-07T10:30:00.000Z",
+    subject: "CS 314",
+    description: "Problem set covering data structures: balanced BSTs, hash tables, and amortized analysis. Six problems with proofs and implementation exercises.",
+    sharedWith: [],
+    fileUrl: "/files/hw6-problem-set.pdf"
+  },
+  {
+    id: "file-hw5",
+    name: "HW 5 — Problem Set",
+    fileType: "Assignment",
+    sizeLabel: "194 KB",
+    uploadedAt: "2026-03-03T09:15:00.000Z",
+    subject: "CS 314",
+    description: "Problem set on sorting algorithms, recursion trees, and divide-and-conquer strategies. Includes complexity analysis and runtime proofs.",
+    sharedWith: ["friend-devin", "friend-marcus"],
+    fileUrl: "/files/hw5-problem-set.pdf"
+  },
+  {
+    id: "file-midterm-guide",
+    name: "Midterm Study Guide",
+    fileType: "Notes",
+    sizeLabel: "320 KB",
+    uploadedAt: "2026-03-01T16:45:00.000Z",
+    subject: "CS 429",
+    description: "Comprehensive notes covering assembly language, memory hierarchies, caching, and pipeline design covered through midterm.",
+    sharedWith: ["friend-devin"]
+  },
+  {
+    id: "file-week8-slides",
+    name: "Lecture Slides — Week 8",
+    fileType: "Slides",
+    sizeLabel: "2.4 MB",
+    uploadedAt: "2026-02-28T11:00:00.000Z",
+    subject: "BIO 301",
+    description: "Week 8 lecture slides on marine ecosystem dynamics, trophic cascades, and keystone species with annotated diagrams.",
+    sharedWith: []
+  },
+  {
+    id: "file-lab-report",
+    name: "Lab Report — Electrolysis",
+    fileType: "PDF",
+    sizeLabel: "580 KB",
+    uploadedAt: "2026-02-25T19:30:00.000Z",
+    subject: "CH 302",
+    description: "Formal lab report on electrolysis of water: methodology, data tables, error analysis, and conclusions on Faraday's laws.",
+    sharedWith: ["friend-sarah", "friend-marcus"]
+  }
+];

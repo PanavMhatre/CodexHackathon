@@ -5,6 +5,7 @@ import {
   BookOpen,
   Bot,
   Clock3,
+  FolderOpen,
   LayoutDashboard,
   MapPinned,
   Menu,
@@ -22,6 +23,7 @@ const navItems = [
   { href: "/spots", label: "Spots", icon: MapPinned },
   { href: "/focus", label: "Focus", icon: Clock3 },
   { href: "/collection", label: "Collection", icon: Sparkles },
+  { href: "/files", label: "Files", icon: FolderOpen },
   { href: "/tasks", label: "Tasks", icon: BookOpen },
   { href: "/chat", label: "Chat", icon: Bot }
 ];
@@ -143,7 +145,7 @@ export function AppShell({
       </aside>
 
       <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-moss/10 bg-cream/95 p-2 backdrop-blur lg:hidden">
-        <div className="mx-auto grid max-w-xl grid-cols-6 gap-1">
+        <div className="mx-auto grid max-w-2xl grid-cols-7 gap-0.5">
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = currentPath === item.href || currentPath.startsWith(`${item.href}/`);
@@ -154,7 +156,7 @@ export function AppShell({
                 href={item.href}
                 aria-label={item.label}
                 className={cn(
-                  "flex min-h-[52px] flex-col items-center justify-center gap-1 rounded-2xl px-1 py-2 text-[11px] font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss focus-visible:ring-offset-2 focus-visible:ring-offset-cream",
+                  "flex min-h-[52px] flex-col items-center justify-center gap-0.5 rounded-2xl px-0.5 py-2 text-[9px] font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss focus-visible:ring-offset-2 focus-visible:ring-offset-cream",
                   active ? "bg-moss text-cream" : "text-ink/80 hover:bg-moss/8"
                 )}
               >

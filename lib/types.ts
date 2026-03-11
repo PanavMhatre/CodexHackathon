@@ -67,3 +67,22 @@ export interface DashboardSnapshot {
   tasks: TaskItem[];
   collection: CollectionEntry[];
 }
+
+export interface StudyFile {
+  id: string;
+  name: string;
+  fileType: "PDF" | "Notes" | "Assignment" | "Slides";
+  sizeLabel: string;
+  uploadedAt: string;
+  subject: string;
+  description: string;
+  sharedWith: string[];
+  fileUrl?: string;
+}
+
+export interface Friend {
+  id: string;
+  name: string;
+  major: string;
+  avatar: string;
+}
