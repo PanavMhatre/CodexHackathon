@@ -16,17 +16,26 @@ export function CheckInButton({ spotId }: { spotId: string }) {
     });
   }
 
-  return (
-    <div className="flex flex-col gap-2">
+  if (message) {
+    return (
       <button
         type="button"
-        onClick={handleCheckIn}
-        disabled={isPending}
-        className="rounded-2xl bg-moss px-5 py-3 text-sm font-semibold text-cream"
+        disabled
+        className="rounded-2xl bg-moss/40 px-5 py-3 text-sm font-semibold text-cream cursor-default"
       >
-        {isPending ? "Checking in..." : "Check in"}
+        ✓ Checked in
       </button>
-      {message ? <p className="text-sm text-moss">{message}</p> : null}
-    </div>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={handleCheckIn}
+      disabled={isPending}
+      className="rounded-2xl bg-moss px-5 py-3 text-sm font-semibold text-cream"
+    >
+      {isPending ? "Checking in..." : "Check in"}
+    </button>
   );
 }

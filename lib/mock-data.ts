@@ -31,7 +31,10 @@ export const studySpots: StudySpot[] = [
     tags: ["24-hour vibe", "Quiet floors", "Central campus"],
     noiseLevel: "Quiet",
     outletAvailability: "Plentiful",
-    featuredCreatureId: "library-axolotl"
+    featuredCreatureId: "library-axolotl",
+    lat: 30.2828,
+    lng: -97.7382,
+    address: "101 E 21st St, Austin, TX 78705"
   },
   {
     id: "union",
@@ -43,7 +46,10 @@ export const studySpots: StudySpot[] = [
     tags: ["Food nearby", "Group study", "Late afternoon"],
     noiseLevel: "Buzzing",
     outletAvailability: "Decent",
-    featuredCreatureId: "union-fox"
+    featuredCreatureId: "union-fox",
+    lat: 30.2858,
+    lng: -97.7408,
+    address: "2308 Whitis Ave, Austin, TX 78705"
   },
   {
     id: "welch",
@@ -55,7 +61,10 @@ export const studySpots: StudySpot[] = [
     tags: ["Whiteboards", "STEM hub", "Group pods"],
     noiseLevel: "Moderate",
     outletAvailability: "Decent",
-    featuredCreatureId: "welch-sprite"
+    featuredCreatureId: "welch-sprite",
+    lat: 30.2868,
+    lng: -97.7370,
+    address: "105 E 24th St, Austin, TX 78712"
   },
   {
     id: "pma",
@@ -67,7 +76,10 @@ export const studySpots: StudySpot[] = [
     tags: ["Natural light", "Math corridor", "Drop-in sessions"],
     noiseLevel: "Moderate",
     outletAvailability: "Sparse",
-    featuredCreatureId: "pma-moth"
+    featuredCreatureId: "pma-moth",
+    lat: 30.2876,
+    lng: -97.7382,
+    address: "2100 San Jacinto Blvd, Austin, TX 78712"
   },
   {
     id: "littlefield",
@@ -79,7 +91,10 @@ export const studySpots: StudySpot[] = [
     tags: ["Coffee", "Writing", "Casual focus"],
     noiseLevel: "Buzzing",
     outletAvailability: "Sparse",
-    featuredCreatureId: "littlefield-bee"
+    featuredCreatureId: "littlefield-bee",
+    lat: 30.2844,
+    lng: -97.7393,
+    address: "101 E 21st St, Austin, TX 78712"
   },
   {
     id: "gsb",
@@ -91,7 +106,10 @@ export const studySpots: StudySpot[] = [
     tags: ["Business school", "Presentation prep", "Collaborative"],
     noiseLevel: "Moderate",
     outletAvailability: "Plentiful",
-    featuredCreatureId: "gsb-koi"
+    featuredCreatureId: "gsb-koi",
+    lat: 30.2843,
+    lng: -97.7355,
+    address: "2110 Speedway, Austin, TX 78712"
   },
   {
     id: "fac",
@@ -103,7 +121,10 @@ export const studySpots: StudySpot[] = [
     tags: ["Hidden gem", "Creative work", "Quiet corners"],
     noiseLevel: "Quiet",
     outletAvailability: "Decent",
-    featuredCreatureId: "fac-raccoon"
+    featuredCreatureId: "fac-raccoon",
+    lat: 30.2879,
+    lng: -97.7416,
+    address: "23rd & Trinity St, Austin, TX 78712"
   },
   {
     id: "eer",
@@ -115,7 +136,10 @@ export const studySpots: StudySpot[] = [
     tags: ["Engineering", "Project work", "Modern space"],
     noiseLevel: "Moderate",
     outletAvailability: "Plentiful",
-    featuredCreatureId: "ece-cicada"
+    featuredCreatureId: "ece-cicada",
+    lat: 30.2877,
+    lng: -97.7352,
+    address: "2501 Speedway, Austin, TX 78712"
   },
   {
     id: "tower",
@@ -127,7 +151,10 @@ export const studySpots: StudySpot[] = [
     tags: ["Historic", "Campus icon", "Reading"],
     noiseLevel: "Quiet",
     outletAvailability: "Sparse",
-    featuredCreatureId: "horned-owl"
+    featuredCreatureId: "horned-owl",
+    lat: 30.2863,
+    lng: -97.7393,
+    address: "110 Inner Campus Dr, Austin, TX 78705"
   },
   {
     id: "law",
@@ -139,7 +166,10 @@ export const studySpots: StudySpot[] = [
     tags: ["Very quiet", "Reading room", "Exam prep"],
     noiseLevel: "Quiet",
     outletAvailability: "Decent",
-    featuredCreatureId: "law-cat"
+    featuredCreatureId: "law-cat",
+    lat: 30.2839,
+    lng: -97.7370,
+    address: "727 E Dean Keeton St, Austin, TX 78705"
   }
 ];
 
@@ -150,9 +180,9 @@ export const recentSessions: StudySession[] = [
 ];
 
 export const tasks: TaskItem[] = [
-  { id: "task-1", title: "Finish GOV 312L reading notes", dueLabel: "Tonight", completed: false, xpReward: 20 },
-  { id: "task-2", title: "Submit CS 313E lab", dueLabel: "Tomorrow", completed: false, xpReward: 35 },
-  { id: "task-3", title: "Review M 408D quiz problems", dueLabel: "Thu", completed: true, xpReward: 15 }
+  { id: "task-1", title: "Finalize StudyMon MVP demo", dueLabel: "Tonight", completed: false, xpReward: 20 },
+  { id: "task-2", title: "Submit Devpost project page", dueLabel: "Tomorrow", completed: false, xpReward: 35 },
+  { id: "task-3", title: "Polish UI and fix auth flow", dueLabel: "Today", completed: true, xpReward: 15 }
 ];
 
 export const collection: CollectionEntry[] = [
@@ -164,7 +194,7 @@ export const collection: CollectionEntry[] = [
 export const dashboardSnapshot: DashboardSnapshot = {
   profile: {
     id: "user-demo",
-    fullName: "Maya Chen",
+    fullName: "Panav Mhatre",
     major: "Computer Science",
     xp: 540,
     streak: 6,

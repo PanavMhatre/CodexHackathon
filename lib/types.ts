@@ -32,6 +32,9 @@ export interface StudySpot {
   noiseLevel: NoiseLevel;
   outletAvailability: OutletAvailability;
   featuredCreatureId: string;
+  lat: number;
+  lng: number;
+  address: string;
 }
 
 export interface StudySession {

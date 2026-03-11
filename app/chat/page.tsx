@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, FormEvent } from "react";
+import dynamic from "next/dynamic";
 import { AppShell } from "@/components/app-shell";
 import {
   Send,
@@ -14,9 +15,12 @@ import {
   BarChart3,
   Loader2,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Navigation
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+const SpotMap = dynamic(() => import("@/components/spot-map"), { ssr: false });
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -45,13 +49,14 @@ const TOOL_META: Record<string, { label: string; icon: React.ReactNode }> = {
   add_task: { label: "Adding task", icon: <BookOpen className="h-3.5 w-3.5" /> },
   complete_task: { label: "Completing task", icon: <CheckCircle2 className="h-3.5 w-3.5" /> },
   get_user_stats: { label: "Loading your stats", icon: <BarChart3 className="h-3.5 w-3.5" /> },
-  get_collection: { label: "Loading collection", icon: <Sparkles className="h-3.5 w-3.5" /> }
+  get_collection: { label: "Loading collection", icon: <Sparkles className="h-3.5 w-3.5" /> },
+  get_directions: { label: "Getting directions", icon: <Navigation className="h-3.5 w-3.5" /> }
 };
 
 // ─── Tool result card ─────────────────────────────────────────────────────────
 
 function ToolResultCard({ toolCall }: { toolCall: ToolCall }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(toolCall.name === "get_directions");
   const meta = TOOL_META[toolCall.name] ?? { label: toolCall.name, icon: <Bot className="h-3.5 w-3.5" /> };
   const result = toolCall.result;
 
@@ -194,6 +199,51 @@ function ToolResultBody({ name, result }: { name: string; result: Record<string,
     );
   }
 
+  if (name === "get_directions") {
+    const lat = result.lat as number;
+    const lng = result.lng as number;
+    const walkUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=walking`;
+    const driveUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`;
+    return (
+      <div className="space-y-2.5">
+        {/* Leaflet map */}
+        <div className="overflow-hidden rounded-xl border border-moss/10 shadow-sm">
+          <SpotMap lat={lat} lng={lng} name={String(result.name)} />
+        </div>
+
+        {/* Address card */}
+        <div className="flex items-start gap-2 rounded-xl bg-white/70 px-3 py-2.5 border border-moss/10">
+          <MapPinned className="h-3.5 w-3.5 mt-0.5 shrink-0 text-moss" />
+          <div>
+            <p className="font-semibold text-ink text-xs">{String(result.name)}</p>
+            <p className="text-ink/50 text-[11px] mt-0.5">{String(result.address)}</p>
+          </div>
+        </div>
+
+        {/* Direction mode buttons */}
+        <div className="grid grid-cols-2 gap-2">
+          <a
+            href={walkUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-1.5 rounded-xl border border-moss/20 bg-white/70 px-3 py-2 text-xs font-semibold text-moss hover:bg-moss/10 transition-colors"
+          >
+            🚶 Walk there
+          </a>
+          <a
+            href={driveUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-1.5 rounded-xl bg-moss px-3 py-2 text-xs font-semibold text-cream hover:bg-moss/90 transition-colors"
+          >
+            <Navigation className="h-3 w-3" />
+            Get Directions
+          </a>
+        </div>
+      </div>
+    );
+  }
+
   // Fallback: raw JSON
   return (
     <pre className="overflow-auto rounded-lg bg-ink/5 p-2 text-[10px] text-ink/60">
@@ -220,7 +270,10 @@ function MessageBubble({ message }: { message: Message }) {
       </div>
 
       {/* Content */}
-      <div className={cn("max-w-[75%] space-y-1", isUser ? "items-end" : "items-start")}>
+      <div className={cn(
+        "space-y-1",
+        isUser ? "items-end max-w-[75%]" : "items-start w-[90%]"
+      )}>
         {/* Tool calls (assistant only) */}
         {!isUser && message.toolCalls.map((tc, i) => (
           <ToolResultCard key={i} toolCall={tc} />
@@ -262,7 +315,9 @@ const SUGGESTED = [
   "Start a 45-minute session at the Union",
   "What tasks do I have due tonight?",
   "Show me my creature collection",
-  "How's my study streak looking?"
+  "How's my study streak looking?",
+  "How do I get to PCL?",
+  "Get directions to the Union"
 ];
 
 // ─── Main chat page ───────────────────────────────────────────────────────────
@@ -434,7 +489,7 @@ export default function ChatPage() {
               </div>
             </div>
           ) : (
-            <div className="space-y-5 px-1">
+            <div className="mx-auto max-w-2xl space-y-5 px-1">
               {messages.map(msg => (
                 <MessageBubble key={msg.id} message={msg} />
               ))}
@@ -446,7 +501,7 @@ export default function ChatPage() {
         {/* Input bar */}
         <form
           onSubmit={handleSubmit}
-          className="panel mt-2 flex items-end gap-3 p-3"
+          className="panel mx-auto mb-4 mt-2 flex w-full max-w-2xl items-center gap-3 px-4 py-3"
         >
           <textarea
             ref={textareaRef}
@@ -456,7 +511,7 @@ export default function ChatPage() {
             placeholder="Ask me anything — find a spot, start a session, add a task…"
             rows={1}
             disabled={loading}
-            className="flex-1 resize-none bg-transparent text-sm text-ink placeholder:text-ink/40 focus:outline-none disabled:opacity-50"
+            className="flex-1 resize-none bg-transparent py-1 text-sm leading-5 text-ink placeholder:text-ink/40 focus:outline-none disabled:opacity-50"
             style={{ maxHeight: 160 }}
           />
           <button

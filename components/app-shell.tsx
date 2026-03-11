@@ -2,6 +2,7 @@ import Link from "next/link";
 import { BookOpen, Bot, Clock3, LayoutDashboard, MapPinned, Sparkles } from "lucide-react";
 import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { AuthHeader } from "@/components/auth-header";
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -32,12 +33,7 @@ export function AppShell({
               <h1 className="font-serif text-2xl text-ink">StudyMon</h1>
             </div>
           </Link>
-          <Link
-            href="/sign-in"
-            className="rounded-full border border-moss/15 bg-white/80 px-4 py-2 text-sm font-semibold text-moss transition hover:bg-white"
-          >
-            Sign in
-          </Link>
+          <AuthHeader />
         </div>
       </header>
 

@@ -5,37 +5,84 @@ import { SectionHeader } from "@/components/section-header";
 import { SessionHistory } from "@/components/session-history";
 import { StatCard } from "@/components/stat-card";
 import { dashboardSnapshot, getSpotById, studySpots } from "@/lib/mock-data";
+import { createClient } from "@/lib/supabase/server";
+import { hasSupabaseEnv } from "@/lib/supabase/env";
 
-export default function DashboardPage() {
+function computeLevel(xp: number) {
+  return Math.floor(xp / 200) + 1;
+}
+
+export default async function DashboardPage() {
   const featuredSpot = studySpots[0];
-  const lastSessionSpot = getSpotById(dashboardSnapshot.recentSessions[0].studySpotId);
+
+  let firstName = dashboardSnapshot.profile.fullName.split(" ")[0];
+  let xp = dashboardSnapshot.profile.xp;
+  let streak = dashboardSnapshot.profile.streak;
+  let level = dashboardSnapshot.profile.level;
+  let collectionCount = dashboardSnapshot.collection.length;
+  let lastCaughtCode = getSpotById(dashboardSnapshot.recentSessions[0]?.studySpotId)?.buildingCode ?? featuredSpot.buildingCode;
+
+  if (hasSupabaseEnv()) {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (user) {
+      const fullName = user.user_metadata?.full_name || user.email?.split("@")[0] || firstName;
+      firstName = (fullName as string).split(" ")[0];
+
+      const [profileRes, collectionRes, lastSessionRes] = await Promise.all([
+        supabase.from("profiles").select("xp, streak").eq("id", user.id).single(),
+        supabase.from("user_creatures").select("id", { count: "exact", head: true }).eq("user_id", user.id),
+        supabase
+          .from("study_sessions")
+          .select("study_spots ( building_code )")
+          .eq("user_id", user.id)
+          .order("completed_at", { ascending: false })
+          .limit(1)
+          .single()
+      ]);
+
+      if (profileRes.data) {
+        xp = profileRes.data.xp;
+        streak = profileRes.data.streak;
+        level = computeLevel(xp);
+      }
+
+      collectionCount = collectionRes.count ?? 0;
+
+      const lastSpot = (lastSessionRes.data as any)?.study_spots;
+      if (lastSpot?.building_code) {
+        lastCaughtCode = lastSpot.building_code;
+      }
+    }
+  }
 
   return (
     <AppShell currentPath="/">
       <section className="panel bg-hero-grid p-6 sm:p-8">
         <SectionHeader
           eyebrow="Daily Dashboard"
-          title={`Welcome back, ${dashboardSnapshot.profile.fullName.split(" ")[0]}`}
+          title={`Welcome back, ${firstName}`}
           description="Track your streak, keep momentum visible, and jump back into a focus session at one of UT Austin's best study spots."
         />
 
         <div className="mt-8 grid gap-4 md:grid-cols-3">
           <StatCard
             label="Current XP"
-            value={dashboardSnapshot.profile.xp.toString()}
-            detail={`Level ${dashboardSnapshot.profile.level} explorer`}
+            value={xp.toString()}
+            detail={`Level ${level} explorer`}
             icon={<Sparkles className="h-5 w-5" />}
           />
           <StatCard
             label="Study Streak"
-            value={`${dashboardSnapshot.profile.streak} days`}
+            value={`${streak} days`}
             detail="Keep the streak alive with one completed session today."
             icon={<Flame className="h-5 w-5" />}
           />
           <StatCard
             label="Collection"
-            value={`${dashboardSnapshot.collection.length} caught`}
-            detail={`Last found at ${lastSessionSpot?.buildingCode ?? featuredSpot.buildingCode}`}
+            value={`${collectionCount} caught`}
+            detail={`Last found at ${lastCaughtCode}`}
             icon={<Trophy className="h-5 w-5" />}
           />
         </div>
