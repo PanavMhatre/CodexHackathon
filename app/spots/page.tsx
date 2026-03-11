@@ -7,7 +7,7 @@ import { studySpots } from "@/lib/mock-data";
 export default function StudySpotsPage() {
   return (
     <AppShell currentPath="/spots">
-      <Card className="p-6 sm:p-8">
+      <Card className="bg-hero-grid p-6 sm:p-8">
         <SectionHeader
           eyebrow="Study Spots"
           title="Find the right UT Austin vibe"

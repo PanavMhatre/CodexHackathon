@@ -1,11 +1,11 @@
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { notFound } from "next/navigation";
-import { MapPin, PlugZap, Volume2 } from "lucide-react";
+import { MapPin, PlugZap, UserPlus, Volume2 } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { CheckInButton } from "@/components/check-in-button";
 import { Badge } from "@/components/ui/badge";
-import { buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Reveal } from "@/components/ui/reveal";
 import { getCreatureById, getSpotBySlug } from "@/lib/mock-data";
@@ -46,7 +46,7 @@ export default function StudySpotDetailPage({
           <Card className="bg-hero-grid p-6 sm:p-8">
             <div className="flex flex-wrap gap-2">
               {spot.tags.map((tag) => (
-                <Badge key={tag}>{tag}</Badge>
+                <Badge key={tag} variant="cream">{tag}</Badge>
               ))}
             </div>
 
@@ -74,7 +74,7 @@ export default function StudySpotDetailPage({
               </Card>
             </div>
 
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <CheckInButton spotId={spot.id} />
               <Link
                 href={`/focus?spot=${spot.slug}`}
@@ -82,6 +82,10 @@ export default function StudySpotDetailPage({
               >
                 Start focus session
               </Link>
+              <Button variant="secondary" className="w-full sm:w-auto">
+                <UserPlus className="h-4 w-4" />
+                Invite friend
+              </Button>
             </div>
           </Card>
         </Reveal>
@@ -90,10 +94,10 @@ export default function StudySpotDetailPage({
           <Card className="overflow-hidden">
             <div className={`bg-gradient-to-br ${creature?.accent ?? "from-moss to-fern"} p-6 text-white`}>
               <p className="text-6xl">{creature?.illustration ?? "✨"}</p>
-              <Badge variant="cream" className="mt-5 bg-white/15 text-white">
+              <Badge variant="cream" className="mt-5 bg-white/90 text-black border-transparent">
                 Featured Creature
               </Badge>
-              <h2 className="mt-2 font-serif text-4xl">{creature?.name}</h2>
+              <h2 className="mt-2 font-serif text-4xl text-ink/80">{creature?.name}</h2>
             </div>
             <div className="p-6">
               <p className="text-sm leading-6 text-ink/80">

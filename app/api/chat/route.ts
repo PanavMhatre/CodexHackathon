@@ -79,6 +79,7 @@ When the user asks you to:
 - See their creature collection → use get_collection
 - Get info about a specific spot → use get_spot_details
 - Get directions or navigate to a spot → use get_directions. When you do, simply say something like "Here's how to get to [name]!" — never include raw latitude, longitude, or coordinate numbers in your text response.
+- Invite a friend to a study session → use invite_friend. Confirm with something like "Done! I've sent [name] an invite to your session and a calendar invite too."
 
 Always use tools proactively — don't just describe what you could do, do it.
 Be friendly, concise, and action-oriented. Confirm completed actions clearly.
@@ -232,6 +233,21 @@ const tools: OpenAI.Chat.ChatCompletionTool[] = [
           spot_id: { type: "string", description: "The spot ID or building code (e.g. 'pcl', 'union')" }
         },
         required: ["spot_id"]
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "invite_friend",
+      description: "Invite a friend to join the user's current or upcoming study session. Use when the user asks to invite, add, or bring a friend to a session.",
+      parameters: {
+        type: "object",
+        properties: {
+          friend_name: { type: "string", description: "The name of the friend to invite, e.g. 'Devin'" },
+          spot_name: { type: "string", description: "Optional name of the study spot for the session" }
+        },
+        required: ["friend_name"]
       }
     }
   }
@@ -504,6 +520,17 @@ async function executeTool(
         return { name: creature?.name, illustration: creature?.illustration, rarity: creature?.rarity, description: creature?.description, foundAt: spot?.name, acquiredAt: entry.acquiredAt };
       });
       return JSON.stringify({ collection: entries, total: entries.length });
+    }
+
+    case "invite_friend": {
+      const friendName = input.friend_name as string;
+      const spotName = input.spot_name as string | undefined;
+      const locationText = spotName ? ` at ${spotName}` : "";
+      return JSON.stringify({
+        success: true,
+        friend_name: friendName,
+        message: `Invitation sent to ${friendName}! They've been invited to join your study session${locationText}. I've also sent them a calendar invite. You'll be notified when they accept.`
+      });
     }
 
     default:

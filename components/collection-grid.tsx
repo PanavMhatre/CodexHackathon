@@ -18,11 +18,11 @@ const rarityOrder: Record<Creature["rarity"], number> = { Epic: 0, Rare: 1, Comm
 function rarityBadgeClasses(rarity: Creature["rarity"]) {
   switch (rarity) {
     case "Epic":
-      return "bg-cream/15 text-cream border border-white/30";
+      return "bg-purple-600 text-white border border-purple-700";
     case "Rare":
-      return "bg-amber/20 text-amber-800 border border-amber/30";
+      return "bg-orange-500 text-white border border-orange-600";
     default:
-      return "bg-white/20 text-white/80 border border-white/20";
+      return "bg-yellow-400 text-yellow-900 border border-yellow-500";
   }
 }
 
@@ -162,7 +162,7 @@ function CaughtCard({
         <span className={`mt-3 inline-block rounded-full px-3 py-0.5 text-[10px] font-bold uppercase tracking-[0.2em] ${rarityBadgeClasses(creature.rarity)}`}>
           {creature.rarity}
         </span>
-        <h3 className="mt-1.5 font-serif text-2xl leading-tight tracking-tight sm:text-3xl">{creature.name}</h3>
+        <h3 className="mt-1.5 font-serif text-2xl leading-tight tracking-tight text-ink/80 sm:text-3xl">{creature.name}</h3>
       </div>
       <div className="p-5">
         <p className="text-sm leading-relaxed text-ink/80">{creature.description}</p>

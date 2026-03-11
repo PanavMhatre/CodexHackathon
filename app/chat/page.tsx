@@ -317,7 +317,7 @@ const SUGGESTED = [
   "Show me my creature collection",
   "How's my study streak looking?",
   "How do I get to PCL?",
-  "Get directions to the Union"
+  "Invite Devin to study session"
 ];
 
 // ─── Main chat page ───────────────────────────────────────────────────────────

@@ -25,8 +25,8 @@ export function CheckInButton({ spotId }: { spotId: string }) {
   }
 
   return (
-    <Button onClick={handleCheckIn} disabled={checkedIn || isPending}>
-      {checkedIn ? "Checked in" : isPending ? "Checking in..." : "Check in"}
+    <Button onClick={handleCheckIn} disabled={checkedIn || isPending} className="w-full whitespace-nowrap sm:w-auto">
+      {checkedIn ? "Checked in ✓" : isPending ? "Checking in..." : "Check in"}
     </Button>
   );
 }
