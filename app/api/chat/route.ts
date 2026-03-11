@@ -12,9 +12,24 @@ import {
 import { createClient } from "@/lib/supabase/server";
 import { hasSupabaseEnv } from "@/lib/supabase/env";
 
-function getClient() {
+function getApiKeys(): string[] {
+  const keys: string[] = [];
+  // Support comma-separated GROQ_API_KEYS
+  if (process.env.GROQ_API_KEYS) {
+    keys.push(...process.env.GROQ_API_KEYS.split(",").map(k => k.trim()).filter(Boolean));
+  }
+  // Support GROQ_API_KEY, GROQ_API_KEY_2, GROQ_API_KEY_3, ...
+  if (process.env.GROQ_API_KEY) keys.push(process.env.GROQ_API_KEY);
+  for (let i = 2; i <= 10; i++) {
+    const key = process.env[`GROQ_API_KEY_${i}`];
+    if (key) keys.push(key);
+  }
+  return [...new Set(keys)];
+}
+
+function getClient(apiKey?: string) {
   return new OpenAI({
-    apiKey: process.env.GROQ_API_KEY,
+    apiKey: apiKey ?? process.env.GROQ_API_KEY,
     baseURL: "https://api.groq.com/openai/v1"
   });
 }
@@ -614,26 +629,38 @@ function runStream(
           let finishReason: string | null = null;
           const toolCallAccumulator: Record<number, { id: string; name: string; arguments: string }> = {};
           const assistantText: string[] = [];
+          let retryNeeded = false;
 
-          for await (const chunk of groqStream) {
-            const choice = chunk.choices[0];
-            if (!choice) continue;
-            if (choice.finish_reason) finishReason = choice.finish_reason;
-            const delta = choice.delta;
-            if (delta.content) {
-              send({ type: "text", text: delta.content });
-              assistantText.push(delta.content);
-            }
-            if (delta.tool_calls) {
-              for (const tc of delta.tool_calls) {
-                const idx = tc.index;
-                if (!toolCallAccumulator[idx]) toolCallAccumulator[idx] = { id: "", name: "", arguments: "" };
-                if (tc.id) toolCallAccumulator[idx].id = tc.id;
-                if (tc.function?.name) toolCallAccumulator[idx].name += tc.function.name;
-                if (tc.function?.arguments) toolCallAccumulator[idx].arguments += tc.function.arguments;
+          try {
+            for await (const chunk of groqStream) {
+              const choice = chunk.choices[0];
+              if (!choice) continue;
+              if (choice.finish_reason) finishReason = choice.finish_reason;
+              const delta = choice.delta;
+              if (delta.content) {
+                send({ type: "text", text: delta.content });
+                assistantText.push(delta.content);
+              }
+              if (delta.tool_calls) {
+                for (const tc of delta.tool_calls) {
+                  const idx = tc.index;
+                  if (!toolCallAccumulator[idx]) toolCallAccumulator[idx] = { id: "", name: "", arguments: "" };
+                  if (tc.id) toolCallAccumulator[idx].id = tc.id;
+                  if (tc.function?.name) toolCallAccumulator[idx].name += tc.function.name;
+                  if (tc.function?.arguments) toolCallAccumulator[idx].arguments += tc.function.arguments;
+                }
               }
             }
+          } catch (streamErr) {
+            const msg = streamErr instanceof Error ? streamErr.message : String(streamErr);
+            if (msg.includes("failed_generation")) {
+              retryNeeded = true;
+            } else {
+              throw streamErr;
+            }
           }
+
+          if (retryNeeded) continue;
 
           const toolCalls = Object.values(toolCallAccumulator);
           if (finishReason !== "tool_calls" || toolCalls.length === 0) break;
