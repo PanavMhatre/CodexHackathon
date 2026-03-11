@@ -12,10 +12,12 @@ import {
 import { createClient } from "@/lib/supabase/server";
 import { hasSupabaseEnv } from "@/lib/supabase/env";
 
-const client = new OpenAI({
-  apiKey: process.env.GROQ_API_KEY,
-  baseURL: "https://api.groq.com/openai/v1"
-});
+function getClient() {
+  return new OpenAI({
+    apiKey: process.env.GROQ_API_KEY,
+    baseURL: "https://api.groq.com/openai/v1"
+  });
+}
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -570,7 +572,7 @@ function runStream(
         while (true) {
           let groqStream;
           try {
-            groqStream = await client.chat.completions.create({
+            groqStream = await getClient().chat.completions.create({
               model: "llama-3.3-70b-versatile",
               messages: chatMessages,
               tools,
