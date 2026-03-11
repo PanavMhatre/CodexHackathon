@@ -19,6 +19,7 @@ import {
   Navigation
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 const SpotMap = dynamic(() => import("@/components/spot-map"), { ssr: false });
 
@@ -64,7 +65,7 @@ function ToolResultCard({ toolCall }: { toolCall: ToolCall }) {
     <div className="mt-2 rounded-2xl border border-moss/10 bg-cream/60 text-xs overflow-hidden">
       <button
         onClick={() => setOpen(o => !o)}
-        className="flex w-full items-center gap-2 px-3 py-2 text-moss/70 hover:text-moss transition-colors"
+        className="flex w-full items-center gap-2 px-3 py-2 text-moss/80 transition-colors hover:text-moss focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
       >
         <span className="text-moss/50">{meta.icon}</span>
         <span className="font-semibold">{meta.label}</span>
@@ -88,7 +89,7 @@ function ToolResultCard({ toolCall }: { toolCall: ToolCall }) {
 function ToolResultBody({ name, result }: { name: string; result: Record<string, unknown> }) {
   if (name === "search_study_spots") {
     const spots = result.spots as Array<{ name: string; buildingCode: string; noiseLevel: string; outletAvailability: string; tags: string[] }>;
-    if (!spots?.length) return <p className="text-ink/50">No spots found.</p>;
+    if (!spots?.length) return <p className="text-ink/70">No spots found.</p>;
     return (
       <div className="space-y-1.5">
         {spots.map((s, i) => (
@@ -98,7 +99,7 @@ function ToolResultBody({ name, result }: { name: string; result: Record<string,
             </span>
             <div>
               <p className="font-semibold text-ink">{s.name}</p>
-              <p className="text-ink/50">{s.noiseLevel} · {s.outletAvailability} outlets</p>
+              <p className="text-ink/70">{s.noiseLevel} · {s.outletAvailability} outlets</p>
             </div>
           </div>
         ))}
@@ -125,7 +126,7 @@ function ToolResultBody({ name, result }: { name: string; result: Record<string,
         {creature && (
           <p className="text-moss">
             {creature.illustration} Found <strong>{creature.name}</strong>{" "}
-            <span className="text-ink/50">({creature.rarity})</span>
+            <span className="text-ink/70">({creature.rarity})</span>
           </p>
         )}
       </div>
@@ -140,7 +141,7 @@ function ToolResultBody({ name, result }: { name: string; result: Record<string,
           <div key={i} className={cn("flex items-center gap-2", t.completed && "opacity-40 line-through")}>
             <CheckCircle2 className={cn("h-3 w-3 shrink-0", t.completed ? "text-moss" : "text-ink/20")} />
             <span className="text-ink">{t.title}</span>
-            <span className="ml-auto text-ink/40">{t.dueLabel}</span>
+            <span className="ml-auto text-ink/60">{t.dueLabel}</span>
           </div>
         ))}
       </div>
@@ -174,7 +175,7 @@ function ToolResultBody({ name, result }: { name: string; result: Record<string,
           { label: "Streak", value: `${String(result.streak)}d` }
         ].map(({ label, value }) => (
           <div key={label} className="rounded-xl bg-white/60 px-2 py-1.5 text-center">
-            <p className="text-[10px] uppercase tracking-wider text-ink/40">{label}</p>
+            <p className="text-[10px] uppercase tracking-wider text-ink/55">{label}</p>
             <p className="font-bold text-ink">{value}</p>
           </div>
         ))}
@@ -191,7 +192,7 @@ function ToolResultBody({ name, result }: { name: string; result: Record<string,
             <span>{c.illustration}</span>
             <div>
               <p className="font-semibold text-ink">{c.name}</p>
-              <p className="text-ink/40">{c.rarity}</p>
+              <p className="text-ink/60">{c.rarity}</p>
             </div>
           </div>
         ))}
@@ -216,7 +217,7 @@ function ToolResultBody({ name, result }: { name: string; result: Record<string,
           <MapPinned className="h-3.5 w-3.5 mt-0.5 shrink-0 text-moss" />
           <div>
             <p className="font-semibold text-ink text-xs">{String(result.name)}</p>
-            <p className="text-ink/50 text-[11px] mt-0.5">{String(result.address)}</p>
+            <p className="mt-0.5 text-[11px] text-ink/70">{String(result.address)}</p>
           </div>
         </div>
 
@@ -476,12 +477,12 @@ export default function ChatPage() {
                   I can find spots, book them, start sessions, and manage your tasks — just ask.
                 </p>
               </div>
-              <div className="grid gap-2 sm:grid-cols-2">
+              <div className="flex w-full max-w-full gap-3 overflow-x-auto pb-2 text-left">
                 {SUGGESTED.map(prompt => (
                   <button
                     key={prompt}
                     onClick={() => sendMessage(prompt)}
-                    className="rounded-2xl border border-moss/15 bg-white/80 px-4 py-3 text-left text-sm font-medium text-ink/80 shadow-sm transition hover:border-moss/30 hover:bg-white"
+                    className="min-w-[240px] rounded-2xl border border-moss/15 bg-white/80 px-4 py-3 text-left text-sm font-medium text-ink shadow-sm transition hover:border-moss/30 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss focus-visible:ring-offset-2 focus-visible:ring-offset-cream sm:min-w-[280px]"
                   >
                     {prompt}
                   </button>
@@ -493,9 +494,9 @@ export default function ChatPage() {
               {messages.map(msg => (
                 <MessageBubble key={msg.id} message={msg} />
               ))}
-              <div ref={bottomRef} />
             </div>
           )}
+          <div ref={bottomRef} />
         </div>
 
         {/* Input bar */}
@@ -511,25 +512,22 @@ export default function ChatPage() {
             placeholder="Ask me anything — find a spot, start a session, add a task…"
             rows={1}
             disabled={loading}
-            className="flex-1 resize-none bg-transparent py-1 text-sm leading-5 text-ink placeholder:text-ink/40 focus:outline-none disabled:opacity-50"
+            className="flex-1 resize-none bg-transparent py-1 text-sm leading-5 text-ink placeholder:text-ink/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss focus-visible:ring-offset-2 focus-visible:ring-offset-cream disabled:opacity-50"
             style={{ maxHeight: 160 }}
           />
-          <button
+          <Button
             type="submit"
             disabled={!input.trim() || loading}
-            className={cn(
-              "flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl transition",
-              input.trim() && !loading
-                ? "bg-moss text-cream hover:bg-moss/90"
-                : "bg-moss/10 text-moss/30"
-            )}
+            size="icon"
+            className={cn("h-11 w-11 shrink-0", !input.trim() || loading ? "bg-moss/10 text-moss/30 hover:bg-moss/10" : "")}
+            aria-label="Send chat message"
           >
             {loading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
               <Send className="h-4 w-4" />
             )}
-          </button>
+          </Button>
         </form>
       </div>
     </AppShell>

@@ -1,10 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/browser";
 import { hasSupabaseEnv } from "@/lib/supabase/env";
-import Link from "next/link";
+import { Button, buttonVariants } from "@/components/ui/button";
 
 interface UserInfo {
   fullName: string;
@@ -57,23 +58,18 @@ export function AuthHeader() {
   }
 
   if (loading) {
-    return (
-      <div className="h-9 w-20 animate-pulse rounded-full bg-moss/10" />
-    );
+    return <div className="h-9 w-20 animate-pulse rounded-full bg-moss/10" />;
   }
 
   if (user) {
     return (
       <div className="flex items-center gap-3">
-        <span className="text-sm font-semibold text-ink">
+        <span className="hidden text-sm font-semibold text-ink sm:inline">
           {user.fullName}
         </span>
-        <button
-          onClick={handleSignOut}
-          className="rounded-full border border-moss/15 bg-white/80 px-4 py-2 text-sm font-semibold text-moss transition hover:bg-white"
-        >
+        <Button onClick={handleSignOut} variant="secondary" size="sm" className="rounded-full px-4">
           Sign out
-        </button>
+        </Button>
       </div>
     );
   }
@@ -81,7 +77,7 @@ export function AuthHeader() {
   return (
     <Link
       href="/sign-in"
-      className="rounded-full border border-moss/15 bg-white/80 px-4 py-2 text-sm font-semibold text-moss transition hover:bg-white"
+      className={buttonVariants({ variant: "secondary", size: "sm", className: "rounded-full px-4" })}
     >
       Sign in
     </Link>

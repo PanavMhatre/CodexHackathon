@@ -5,6 +5,11 @@ import { SectionHeader } from "@/components/section-header";
 import { SessionHistory } from "@/components/session-history";
 import { StudyCalendar } from "@/components/study-calendar";
 import { StatCard } from "@/components/stat-card";
+import { XpStatCard } from "@/components/xp-stat-card";
+import { Badge } from "@/components/ui/badge";
+import { buttonVariants } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Reveal } from "@/components/ui/reveal";
 import { dashboardSnapshot, getSpotById, studySpots } from "@/lib/mock-data";
 import { StudySession } from "@/lib/types";
 import { createClient } from "@/lib/supabase/server";
@@ -58,7 +63,7 @@ export default async function DashboardPage() {
           durationMinutes: row.duration_minutes,
           xpEarned: row.xp_earned,
           creatureGrantedId: row.creature_granted_id,
-          completedAt: row.completed_at,
+          completedAt: row.completed_at
         }));
         const firstSpot = getSpotById(sessions[0].studySpotId);
         if (firstSpot) lastCaughtCode = firstSpot.buildingCode;
@@ -68,79 +73,83 @@ export default async function DashboardPage() {
 
   return (
     <AppShell currentPath="/">
-      <section className="panel bg-hero-grid p-6 sm:p-8">
-        <SectionHeader
-          eyebrow="Daily Dashboard"
-          title={`Welcome back, ${firstName}`}
-          description="Track your streak, keep momentum visible, and jump back into a focus session at one of UT Austin's best study spots."
-        />
-
-        <div className="mt-8 grid gap-4 md:grid-cols-3">
-          <StatCard
-            label="Current XP"
-            value={xp.toString()}
-            detail={`Level ${level} explorer`}
-            icon={<Sparkles className="h-5 w-5" />}
-            accent="moss"
-            progress={{
-              current: xp % 200,
-              max: 200,
-              label: `${200 - (xp % 200)} XP to Level ${level + 1}`,
-            }}
+      <Reveal>
+        <Card className="bg-hero-grid p-6 sm:p-8">
+          <SectionHeader
+            eyebrow="Daily Dashboard"
+            title={`Welcome back, ${firstName}`}
+            description="Track your streak, keep momentum visible, and jump back into a focus session at one of UT Austin's best study spots."
           />
-          <StatCard
-            label="Study Streak"
-            value={`${streak} days`}
-            detail="Keep the streak alive with one completed session today."
-            icon={<Flame className="h-5 w-5" />}
-            accent="amber"
-          />
-          <StatCard
-            label="Collection"
-            value={`${collectionCount} caught`}
-            detail={`Last found at ${lastCaughtCode}`}
-            icon={<Trophy className="h-5 w-5" />}
-            accent="lake"
-            progress={{
-              current: collectionCount,
-              max: 10,
-              label: `${10 - collectionCount} creatures remaining`,
-            }}
-          />
-        </div>
-      </section>
 
-      <section className="mt-6 grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
-        <SessionHistory sessions={sessions} />
-
-        <div className="flex flex-col gap-6">
-          <div className="panel p-5">
-            <p className="eyebrow">Featured Spot</p>
-            <h3 className="mt-2 text-2xl font-semibold text-ink">{featuredSpot.name}</h3>
-            <p className="mt-3 text-sm leading-6 text-ink/70">{featuredSpot.longDescription}</p>
-            <div className="mt-5 flex flex-wrap gap-2">
-              {featuredSpot.tags.map((tag) => (
-                <span key={tag} className="rounded-full bg-moss/8 px-3 py-1 text-xs font-medium text-moss">
-                  {tag}
-                </span>
-              ))}
-            </div>
-            <div className="mt-6 grid gap-3 sm:grid-cols-2">
-              <Link
-                href={`/spots/${featuredSpot.slug}`}
-                className="rounded-2xl bg-moss px-4 py-3 text-center text-sm font-semibold text-cream"
-              >
-                Open spot details
-              </Link>
-              <Link
-                href={`/focus?spot=${featuredSpot.slug}`}
-                className="rounded-2xl border border-moss/15 bg-white px-4 py-3 text-center text-sm font-semibold text-ink"
-              >
-                Start focus timer
-              </Link>
-            </div>
+          <div className="mt-8 grid gap-4 md:grid-cols-3">
+            <XpStatCard
+              value={xp}
+              detail={`Level ${level} explorer`}
+              icon={<Sparkles className="h-5 w-5" />}
+              progress={{
+                current: xp % 200,
+                max: 200,
+                label: `${200 - (xp % 200)} XP to Level ${level + 1}`
+              }}
+            />
+            <StatCard
+              label="Study Streak"
+              value={`${streak} days`}
+              detail="Keep the streak alive with one completed session today."
+              icon={<Flame className="h-5 w-5" />}
+              accent="amber"
+            />
+            <StatCard
+              label="Collection"
+              value={`${collectionCount} caught`}
+              detail={`Last found at ${lastCaughtCode}`}
+              icon={<Trophy className="h-5 w-5" />}
+              accent="lake"
+              progress={{
+                current: collectionCount,
+                max: 10,
+                label: `${10 - collectionCount} creatures remaining`
+              }}
+            />
           </div>
-          <StudyCalendar sessions={sessions} />
+        </Card>
+      </Reveal>
+
+      <div className="my-10 h-px bg-moss/10" />
+
+      <section className="grid gap-10 xl:grid-cols-[1.1fr_0.9fr]">
+        <Reveal delay={70}>
+          <SessionHistory sessions={sessions} />
+        </Reveal>
+
+        <div className="flex flex-col gap-10">
+          <Reveal delay={120}>
+            <Card className="p-5">
+              <p className="eyebrow">Featured Spot</p>
+              <h3 className="mt-2 text-2xl font-semibold text-ink">{featuredSpot.name}</h3>
+              <p className="mt-3 text-sm leading-6 text-ink/80">{featuredSpot.longDescription}</p>
+              <div className="mt-5 flex flex-wrap gap-2">
+                {featuredSpot.tags.map((tag) => (
+                  <Badge key={tag}>{tag}</Badge>
+                ))}
+              </div>
+              <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                <Link href={`/spots/${featuredSpot.slug}`} className={buttonVariants({ className: "w-full" })}>
+                  Open spot details
+                </Link>
+                <Link
+                  href={`/focus?spot=${featuredSpot.slug}`}
+                  className={buttonVariants({ variant: "secondary", className: "w-full" })}
+                >
+                  Start focus timer
+                </Link>
+              </div>
+            </Card>
+          </Reveal>
+
+          <Reveal delay={180}>
+            <StudyCalendar sessions={sessions} />
+          </Reveal>
         </div>
       </section>
     </AppShell>

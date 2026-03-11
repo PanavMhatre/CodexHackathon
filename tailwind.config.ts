@@ -27,6 +27,10 @@ const config: Config = {
       backgroundImage: {
         "hero-grid":
           "radial-gradient(circle at top left, rgba(255,191,105,0.22), transparent 32%), radial-gradient(circle at bottom right, rgba(103,183,209,0.18), transparent 28%)"
+      },
+      animation: {
+        "pulse-ring": "pulse-ring 1.2s ease-in-out infinite",
+        "confetti-burst": "confetti-burst 900ms ease-out forwards"
       }
     }
   },

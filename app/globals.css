@@ -46,3 +46,180 @@ select {
 .headline {
   @apply font-serif text-4xl tracking-tight text-ink md:text-5xl;
 }
+
+.reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition:
+    opacity 0.6s ease,
+    transform 0.6s ease;
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.holographic-rare,
+.holographic-epic {
+  position: relative;
+}
+
+.holographic-rare::before,
+.holographic-epic::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border-radius: 1.45rem;
+  pointer-events: none;
+}
+
+.holographic-rare::after,
+.holographic-epic::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 1.5rem;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(103, 183, 209, 0.8), rgba(255, 191, 105, 0.75), rgba(142, 207, 156, 0.8));
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.75;
+  pointer-events: none;
+}
+
+.holographic-rare::before {
+  background: linear-gradient(120deg, transparent 15%, rgba(255, 255, 255, 0.3) 45%, transparent 70%);
+  animation: shimmer 3.6s linear infinite;
+}
+
+.holographic-epic::before {
+  background:
+    linear-gradient(120deg, transparent 8%, rgba(255, 255, 255, 0.28) 40%, transparent 65%),
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.18), transparent 40%);
+  animation: shimmer 2.8s linear infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-45%);
+  }
+  100% {
+    transform: translateX(45%);
+  }
+}
+
+@keyframes pulse-ring {
+  0%, 100% {
+    filter: drop-shadow(0 0 0 rgba(240, 117, 92, 0.16));
+  }
+  50% {
+    filter: drop-shadow(0 0 14px rgba(240, 117, 92, 0.35));
+  }
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes confetti-burst {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0.8);
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-120px) scale(1.18);
+  }
+}
+
+@keyframes number-flash {
+  0%, 100% {
+    color: #122117;
+  }
+  50% {
+    color: #1f4d3d;
+  }
+}
+
+.animate-toast-in {
+  animation: toast-in 0.25s ease-out;
+}
+
+.animate-number-flash {
+  animation: number-flash 0.65s ease;
+}
+
+/* ── Collection card effects ── */
+
+@keyframes gentle-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.collection-float {
+  animation: gentle-float 4s ease-in-out infinite;
+}
+
+/* Rare card – subtle amber border glow on hover */
+.collection-card-rare {
+  position: relative;
+}
+.collection-card-rare::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 1.5rem;
+  background: linear-gradient(135deg, rgba(255,191,105,0.45), rgba(103,183,209,0.35), rgba(255,191,105,0.45));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  padding: 2px;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+.collection-card-rare:hover::after {
+  opacity: 1;
+}
+
+/* Epic card – animated purple/teal shimmer border */
+.collection-card-epic {
+  position: relative;
+}
+.collection-card-epic::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 1.5rem;
+  background: linear-gradient(135deg, rgba(168,85,247,0.5), rgba(103,183,209,0.5), rgba(142,207,156,0.5), rgba(168,85,247,0.5));
+  background-size: 300% 300%;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  padding: 2px;
+  opacity: 0.7;
+  animation: epic-border-shift 4s ease infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+@keyframes epic-border-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}

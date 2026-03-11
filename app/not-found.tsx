@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { buttonVariants } from "@/components/ui/button";
 
 export default function NotFound() {
   return (
@@ -10,7 +11,7 @@ export default function NotFound() {
       </p>
       <Link
         href="/"
-        className="mt-6 rounded-2xl bg-moss px-5 py-3 text-sm font-semibold text-cream"
+        className={`${buttonVariants({ className: "mt-6" })}`}
       >
         Return home
       </Link>

@@ -4,6 +4,8 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/browser";
 import { hasSupabaseEnv } from "@/lib/supabase/env";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 export function AuthCard() {
   const router = useRouter();
@@ -43,6 +45,7 @@ export function AuthCard() {
             }
           }
         });
+
         if (error) {
           setMessage(error.message);
         } else {
@@ -58,62 +61,36 @@ export function AuthCard() {
       <h1 className="mt-2 font-serif text-3xl text-ink">
         {mode === "sign-in" ? "Sign in to StudyMon" : "Create your account"}
       </h1>
-      <p className="mt-3 text-sm leading-6 text-ink/70">{message}</p>
+      <p className="mt-3 text-sm leading-6 text-ink/80">{message}</p>
 
       <div className="mt-6 space-y-4">
-        {mode === "sign-up" && (
+        {mode === "sign-up" ? (
           <>
-            <input
-              type="text"
-              placeholder="Full name"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              className="h-12 w-full rounded-2xl border border-moss/15 bg-white px-4 text-sm outline-none placeholder:text-ink/35 focus:border-moss"
-            />
-            <input
-              type="text"
-              placeholder="Major (e.g. Computer Science)"
-              value={major}
-              onChange={(e) => setMajor(e.target.value)}
-              className="h-12 w-full rounded-2xl border border-moss/15 bg-white px-4 text-sm outline-none placeholder:text-ink/35 focus:border-moss"
-            />
+            <Input type="text" placeholder="Full name" value={fullName} onChange={(event) => setFullName(event.target.value)} />
+            <Input type="text" placeholder="Major (e.g. Computer Science)" value={major} onChange={(event) => setMajor(event.target.value)} />
           </>
-        )}
-        <input
-          type="email"
-          placeholder="you@utexas.edu"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="h-12 w-full rounded-2xl border border-moss/15 bg-white px-4 text-sm outline-none placeholder:text-ink/35 focus:border-moss"
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="h-12 w-full rounded-2xl border border-moss/15 bg-white px-4 text-sm outline-none placeholder:text-ink/35 focus:border-moss"
-        />
+        ) : null}
+        <Input type="email" placeholder="you@utexas.edu" value={email} onChange={(event) => setEmail(event.target.value)} />
+        <Input type="password" placeholder="Password" value={password} onChange={(event) => setPassword(event.target.value)} />
       </div>
 
-      <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-        <button
-          type="button"
-          disabled={isPending}
-          onClick={handleSubmit}
-          className="flex-1 rounded-2xl bg-moss px-5 py-3 text-sm font-semibold text-cream"
-        >
+      <div className="mt-6">
+        <Button onClick={handleSubmit} disabled={isPending} className="w-full">
           {mode === "sign-in" ? "Sign in" : "Create account"}
-        </button>
+        </Button>
       </div>
 
-      <p className="mt-4 text-center text-sm text-ink/60">
+      <p className="mt-4 text-center text-sm text-ink/70">
         {mode === "sign-in" ? (
           <>
             Don&apos;t have an account?{" "}
             <button
               type="button"
-              onClick={() => { setMode("sign-up"); setMessage("Create your StudyMon account."); }}
-              className="font-semibold text-moss hover:underline"
+              onClick={() => {
+                setMode("sign-up");
+                setMessage("Create your StudyMon account.");
+              }}
+              className="font-semibold text-moss hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
             >
               Sign up
             </button>
@@ -123,8 +100,11 @@ export function AuthCard() {
             Already have an account?{" "}
             <button
               type="button"
-              onClick={() => { setMode("sign-in"); setMessage("Use your UT email to sign in or create an account."); }}
-              className="font-semibold text-moss hover:underline"
+              onClick={() => {
+                setMode("sign-in");
+                setMessage("Use your UT email to sign in or create an account.");
+              }}
+              className="font-semibold text-moss hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
             >
               Sign in
             </button>

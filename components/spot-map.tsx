@@ -20,16 +20,18 @@ interface SpotMapProps {
   lat: number;
   lng: number;
   name: string;
+  height?: string;
 }
 
-export default function SpotMap({ lat, lng, name }: SpotMapProps) {
+export default function SpotMap({ lat, lng, name, height = "260px" }: SpotMapProps) {
   return (
     <MapContainer
       center={[lat, lng]}
       zoom={17}
       scrollWheelZoom={false}
-      style={{ height: "260px", width: "100%", borderRadius: "12px" }}
+      style={{ height, width: "100%", borderRadius: "12px" }}
       attributionControl={false}
+      aria-label={`Map showing ${name}`}
     >
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
