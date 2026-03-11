@@ -45,7 +45,7 @@ The agent can:
 - **Next.js** – Frontend framework
 - **Supabase** – Authentication and database
 - **Leaflet** – Interactive campus maps
-- **Groq + LLaMA 3.3 70B** – AI reasoning
+- **GPT 5.3** – AI reasoning
 - **OpenAI tools** – AI agents, MCP integration, computer-use
 
 ---
