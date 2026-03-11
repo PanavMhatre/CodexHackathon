@@ -1,0 +1,15 @@
+{
+  "name": "studyjam",
+  "private": true,
+  "packageManager": "pnpm@10.30.3",
+  "scripts": {
+    "build": "pnpm --filter @studyjam/web build && pnpm --filter @studyjam/server build",
+    "check": "pnpm --filter @studyjam/web check && pnpm --filter @studyjam/server check",
+    "dev": "concurrently -n widget,server -c \"#0f5ef7,#0b8f55\" \"pnpm --filter @studyjam/web dev\" \"WIDGET_ORIGIN=http://localhost:5173 pnpm --filter @studyjam/server dev\"",
+    "start": "pnpm --filter @studyjam/server start"
+  },
+  "devDependencies": {
+    "concurrently": "latest"
+  }
+}
+
