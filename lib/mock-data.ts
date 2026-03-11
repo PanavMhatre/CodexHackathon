@@ -176,7 +176,14 @@ export const studySpots: StudySpot[] = [
 export const recentSessions: StudySession[] = [
   { id: "session-1", studySpotId: "pcl", durationMinutes: 45, completedAt: "2026-03-09T20:15:00.000Z", xpEarned: 85, creatureGrantedId: "library-axolotl" },
   { id: "session-2", studySpotId: "welch", durationMinutes: 25, completedAt: "2026-03-08T18:10:00.000Z", xpEarned: 50, creatureGrantedId: null },
-  { id: "session-3", studySpotId: "union", durationMinutes: 60, completedAt: "2026-03-07T22:05:00.000Z", xpEarned: 120, creatureGrantedId: "union-fox" }
+  { id: "session-3", studySpotId: "union", durationMinutes: 60, completedAt: "2026-03-07T22:05:00.000Z", xpEarned: 120, creatureGrantedId: "union-fox" },
+  { id: "session-4", studySpotId: "eer", durationMinutes: 45, completedAt: "2026-03-06T16:30:00.000Z", xpEarned: 85, creatureGrantedId: null },
+  { id: "session-5", studySpotId: "tower", durationMinutes: 60, completedAt: "2026-03-05T21:40:00.000Z", xpEarned: 120, creatureGrantedId: "horned-owl" },
+  { id: "session-6", studySpotId: "pcl", durationMinutes: 25, completedAt: "2026-03-05T14:00:00.000Z", xpEarned: 50, creatureGrantedId: null },
+  { id: "session-7", studySpotId: "gsb", durationMinutes: 45, completedAt: "2026-03-03T19:20:00.000Z", xpEarned: 85, creatureGrantedId: "gsb-koi" },
+  { id: "session-8", studySpotId: "littlefield", durationMinutes: 25, completedAt: "2026-03-01T11:45:00.000Z", xpEarned: 50, creatureGrantedId: null },
+  { id: "session-9", studySpotId: "fac", durationMinutes: 60, completedAt: "2026-02-28T20:00:00.000Z", xpEarned: 120, creatureGrantedId: "fac-raccoon" },
+  { id: "session-10", studySpotId: "pma", durationMinutes: 25, completedAt: "2026-02-26T17:15:00.000Z", xpEarned: 50, creatureGrantedId: null },
 ];
 
 export const tasks: TaskItem[] = [
