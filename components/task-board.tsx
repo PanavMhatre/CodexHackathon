@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus } from "lucide-react";
+import { Plus, CheckCircle2, Circle } from "lucide-react";
 import { TaskItem } from "@/lib/types";
 
 export function TaskBoard({ initialTasks }: { initialTasks: TaskItem[] }) {
@@ -10,16 +10,15 @@ export function TaskBoard({ initialTasks }: { initialTasks: TaskItem[] }) {
 
   function addTask() {
     if (!title.trim()) return;
-
     setTasks((current) => [
       {
         id: `task-${crypto.randomUUID()}`,
         title: title.trim(),
         dueLabel: "This week",
         completed: false,
-        xpReward: 20
+        xpReward: 20,
       },
-      ...current
+      ...current,
     ]);
     setTitle("");
   }
@@ -32,57 +31,96 @@ export function TaskBoard({ initialTasks }: { initialTasks: TaskItem[] }) {
     );
   }
 
+  const pending = tasks.filter((t) => !t.completed);
+  const completed = tasks.filter((t) => t.completed);
+
   return (
-    <div className="space-y-4">
-      <div className="panel p-5">
-        <p className="eyebrow">Add Task</p>
-        <div className="mt-3 flex flex-col gap-3 sm:flex-row">
-          <input
-            value={title}
-            onChange={(event) => setTitle(event.target.value)}
-            placeholder="Outline BIO 311D lecture review"
-            className="h-12 flex-1 rounded-2xl border border-moss/15 bg-white px-4 text-sm outline-none ring-0 transition placeholder:text-ink/35 focus:border-moss"
-          />
-          <button
-            type="button"
-            onClick={addTask}
-            className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-moss px-5 text-sm font-semibold text-cream transition hover:bg-ink"
-          >
-            <Plus className="h-4 w-4" />
-            Add task
-          </button>
-        </div>
+    <div className="panel p-5">
+      {/* Add task input */}
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <input
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && addTask()}
+          placeholder="Add a new task..."
+          className="h-11 flex-1 rounded-2xl border border-moss/12 bg-white px-4 text-sm outline-none transition placeholder:text-ink/30 focus:border-moss/30 focus:ring-1 focus:ring-moss/10"
+        />
+        <button
+          type="button"
+          onClick={addTask}
+          className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl bg-moss px-5 text-sm font-semibold text-cream transition hover:bg-ink"
+        >
+          <Plus className="h-4 w-4" />
+          Add task
+        </button>
       </div>
 
-      <div className="panel p-5">
-        <p className="eyebrow">Task Queue</p>
-        <div className="mt-4 space-y-3">
-          {tasks.map((task) => (
+      {/* Divider */}
+      <div className="my-4 h-px bg-moss/8" />
+
+      {/* Pending tasks */}
+      {pending.length > 0 && (
+        <div className="space-y-2">
+          {pending.map((task) => (
             <label
               key={task.id}
-              className="flex cursor-pointer items-start justify-between gap-4 rounded-2xl border border-moss/10 bg-cream/70 px-4 py-3"
+              className="flex cursor-pointer items-center gap-3 rounded-2xl border border-moss/8 bg-cream/40 px-4 py-3 transition hover:border-moss/15 hover:bg-cream/70"
             >
-              <div className="flex items-start gap-3">
-                <input
-                  type="checkbox"
-                  checked={task.completed}
-                  onChange={() => toggleTask(task.id)}
-                  className="mt-1 h-4 w-4 rounded border-moss/30 text-moss focus:ring-moss"
-                />
-                <div>
-                  <p className={task.completed ? "text-ink/45 line-through" : "font-semibold text-ink"}>
-                    {task.title}
-                  </p>
-                  <p className="text-sm text-ink/60">{task.dueLabel}</p>
-                </div>
+              <button
+                type="button"
+                onClick={() => toggleTask(task.id)}
+                className="shrink-0 text-ink/20 transition hover:text-moss"
+              >
+                <Circle className="h-5 w-5" />
+              </button>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-ink truncate">{task.title}</p>
+                <p className="text-xs text-ink/45">{task.dueLabel}</p>
               </div>
-              <p className="rounded-full bg-amber/20 px-3 py-1 text-xs font-semibold text-ink">
+              <span className="shrink-0 rounded-full bg-amber/15 px-2.5 py-1 text-[11px] font-semibold text-amber-800">
                 +{task.xpReward} XP
-              </p>
+              </span>
             </label>
           ))}
         </div>
-      </div>
+      )}
+
+      {/* Completed tasks */}
+      {completed.length > 0 && (
+        <>
+          <p className="mb-2 mt-4 text-[11px] font-semibold uppercase tracking-widest text-ink/25">
+            Completed
+          </p>
+          <div className="space-y-1.5">
+            {completed.map((task) => (
+              <label
+                key={task.id}
+                className="flex cursor-pointer items-center gap-3 rounded-2xl px-4 py-2.5 transition hover:bg-cream/50"
+              >
+                <button
+                  type="button"
+                  onClick={() => toggleTask(task.id)}
+                  className="shrink-0 text-moss/50 transition hover:text-moss"
+                >
+                  <CheckCircle2 className="h-5 w-5" />
+                </button>
+                <p className="flex-1 min-w-0 truncate text-sm text-ink/35 line-through">
+                  {task.title}
+                </p>
+                <span className="shrink-0 text-[11px] text-ink/20">
+                  +{task.xpReward} XP
+                </span>
+              </label>
+            ))}
+          </div>
+        </>
+      )}
+
+      {tasks.length === 0 && (
+        <p className="py-8 text-center text-sm text-ink/30">
+          No tasks yet. Add one above to get started.
+        </p>
+      )}
     </div>
   );
 }

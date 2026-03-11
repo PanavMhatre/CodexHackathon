@@ -81,18 +81,31 @@ export default async function DashboardPage() {
             value={xp.toString()}
             detail={`Level ${level} explorer`}
             icon={<Sparkles className="h-5 w-5" />}
+            accent="moss"
+            progress={{
+              current: xp % 200,
+              max: 200,
+              label: `${200 - (xp % 200)} XP to Level ${level + 1}`,
+            }}
           />
           <StatCard
             label="Study Streak"
             value={`${streak} days`}
             detail="Keep the streak alive with one completed session today."
             icon={<Flame className="h-5 w-5" />}
+            accent="amber"
           />
           <StatCard
             label="Collection"
             value={`${collectionCount} caught`}
             detail={`Last found at ${lastCaughtCode}`}
             icon={<Trophy className="h-5 w-5" />}
+            accent="lake"
+            progress={{
+              current: collectionCount,
+              max: 10,
+              label: `${10 - collectionCount} creatures remaining`,
+            }}
           />
         </div>
       </section>
