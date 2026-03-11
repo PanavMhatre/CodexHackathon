@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Flame, Sparkles, Trophy } from "lucide-react";
+import { ArrowRight, Clock3, Flame, Sparkles, Target, Trophy } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { SectionHeader } from "@/components/section-header";
 import { SessionHistory } from "@/components/session-history";
@@ -71,77 +71,148 @@ export default async function DashboardPage() {
     }
   }
 
+  const todaysSessions = sessions.filter((s) => {
+    const d = new Date(s.completedAt);
+    const now = new Date();
+    return d.toDateString() === now.toDateString();
+  });
+  const todaysXp = todaysSessions.reduce((sum, s) => sum + s.xpEarned, 0);
+  const todaysMinutes = todaysSessions.reduce((sum, s) => sum + s.durationMinutes, 0);
+  const hasStudiedToday = todaysSessions.length > 0;
+
   return (
     <AppShell currentPath="/">
+      {/* ── Hero: greeting + primary CTA ── */}
       <Reveal>
         <Card className="bg-hero-grid p-6 sm:p-8">
-          <SectionHeader
-            eyebrow="Daily Dashboard"
-            title={`Welcome back, ${firstName}`}
-            description="Track your streak, keep momentum visible, and jump back into a focus session at one of UT Austin's best study spots."
-          />
-
-          <div className="mt-8 grid gap-4 md:grid-cols-3">
-            <XpStatCard
-              value={xp}
-              detail={`Level ${level} explorer`}
-              icon={<Sparkles className="h-5 w-5" />}
-              progress={{
-                current: xp % 200,
-                max: 200,
-                label: `${200 - (xp % 200)} XP to Level ${level + 1}`
-              }}
-            />
-            <StatCard
-              label="Study Streak"
-              value={`${streak} days`}
-              detail="Keep the streak alive with one completed session today."
-              icon={<Flame className="h-5 w-5" />}
-              accent="amber"
-            />
-            <StatCard
-              label="Collection"
-              value={`${collectionCount} caught`}
-              detail={`Last found at ${lastCaughtCode}`}
-              icon={<Trophy className="h-5 w-5" />}
-              accent="lake"
-              progress={{
-                current: collectionCount,
-                max: 10,
-                label: `${10 - collectionCount} creatures remaining`
-              }}
-            />
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+            <div className="max-w-xl">
+              <p className="eyebrow">Daily Dashboard</p>
+              <h2 className="mt-2 font-serif text-3xl text-ink sm:text-4xl">
+                Welcome back, {firstName}
+              </h2>
+              <p className="mt-3 text-sm leading-6 text-ink/80 sm:text-base">
+                {hasStudiedToday
+                  ? `You've logged ${todaysMinutes} min and earned ${todaysXp} XP today. Keep the momentum going.`
+                  : "Start your first focus session of the day to keep your streak alive and earn XP."}
+              </p>
+            </div>
+            <Link
+              href={`/focus?spot=${featuredSpot.slug}`}
+              className={buttonVariants({ size: "lg", className: "group shrink-0 gap-3" })}
+            >
+              <Clock3 className="h-4 w-4" />
+              Start focus session
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+            </Link>
           </div>
         </Card>
       </Reveal>
 
-      <div className="my-10 h-px bg-moss/10" />
+      {/* ── Today's progress strip ── */}
+      <Reveal delay={40}>
+        <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div className="flex items-center gap-3 rounded-2xl border border-white/60 bg-white/70 px-4 py-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-moss/10 text-moss">
+              <Target className="h-4 w-4" />
+            </div>
+            <div>
+              <p className="text-xs font-medium text-ink/50">Today</p>
+              <p className="text-sm font-bold text-ink">{todaysSessions.length} {todaysSessions.length === 1 ? "session" : "sessions"}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 rounded-2xl border border-white/60 bg-white/70 px-4 py-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber/15 text-amber-800">
+              <Clock3 className="h-4 w-4" />
+            </div>
+            <div>
+              <p className="text-xs font-medium text-ink/50">Focus time</p>
+              <p className="text-sm font-bold text-ink">{todaysMinutes} min</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 rounded-2xl border border-white/60 bg-white/70 px-4 py-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-fern/15 text-moss">
+              <Sparkles className="h-4 w-4" />
+            </div>
+            <div>
+              <p className="text-xs font-medium text-ink/50">XP today</p>
+              <p className="text-sm font-bold text-ink">+{todaysXp}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 rounded-2xl border border-white/60 bg-white/70 px-4 py-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-coral/10 text-coral">
+              <Flame className="h-4 w-4" />
+            </div>
+            <div>
+              <p className="text-xs font-medium text-ink/50">Streak</p>
+              <p className="text-sm font-bold text-ink">{streak} days</p>
+            </div>
+          </div>
+        </div>
+      </Reveal>
 
-      <section className="grid gap-10 xl:grid-cols-[1.1fr_0.9fr]">
+      {/* ── Stats row ── */}
+      <Reveal delay={60}>
+        <div className="mt-5 grid gap-4 md:grid-cols-3">
+          <XpStatCard
+            value={xp}
+            detail={`Level ${level} explorer`}
+            icon={<Sparkles className="h-5 w-5" />}
+            progress={{
+              current: xp % 200,
+              max: 200,
+              label: `${200 - (xp % 200)} XP to Level ${level + 1}`
+            }}
+          />
+          <StatCard
+            label="Study Streak"
+            value={`${streak} days`}
+            detail="Keep the streak alive with one completed session today."
+            icon={<Flame className="h-5 w-5" />}
+            accent="amber"
+          />
+          <StatCard
+            label="Collection"
+            value={`${collectionCount} caught`}
+            detail={`Last found at ${lastCaughtCode}`}
+            icon={<Trophy className="h-5 w-5" />}
+            accent="lake"
+            progress={{
+              current: collectionCount,
+              max: 10,
+              label: `${10 - collectionCount} creatures remaining`
+            }}
+          />
+        </div>
+      </Reveal>
+
+      <div className="my-8 h-px bg-moss/10" />
+
+      <section className="grid gap-8 xl:grid-cols-[1.1fr_0.9fr]">
         <Reveal delay={70}>
           <SessionHistory sessions={sessions} />
         </Reveal>
 
-        <div className="flex flex-col gap-10">
+        <div className="flex flex-col gap-6">
           <Reveal delay={120}>
             <Card className="p-5">
               <p className="eyebrow">Featured Spot</p>
               <h3 className="mt-2 text-2xl font-semibold text-ink">{featuredSpot.name}</h3>
               <p className="mt-3 text-sm leading-6 text-ink/80">{featuredSpot.longDescription}</p>
-              <div className="mt-5 flex flex-wrap gap-2">
+              <div className="mt-4 flex flex-wrap gap-2">
                 {featuredSpot.tags.map((tag) => (
                   <Badge key={tag}>{tag}</Badge>
                 ))}
               </div>
-              <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                <Link href={`/spots/${featuredSpot.slug}`} className={buttonVariants({ className: "w-full" })}>
-                  Open spot details
+              <div className="mt-5 flex gap-3">
+                <Link href={`/spots/${featuredSpot.slug}`} className={buttonVariants({ className: "flex-1" })}>
+                  View spot
                 </Link>
                 <Link
                   href={`/focus?spot=${featuredSpot.slug}`}
-                  className={buttonVariants({ variant: "secondary", className: "w-full" })}
+                  className={buttonVariants({ variant: "secondary", className: "flex-1" })}
                 >
-                  Start focus timer
+                  Focus here
                 </Link>
               </div>
             </Card>

@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Compass, Sparkles } from "lucide-react";
-import { creatures, getSpotById } from "@/lib/mock-data";
+import { Compass, Lock, MapPin, Sparkles } from "lucide-react";
+import { creatures, getSpotById, studySpots } from "@/lib/mock-data";
 import { CollectionEntry, Creature } from "@/lib/types";
 import { formatDateLabel } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -76,17 +76,25 @@ export function CollectionGrid({ entries }: { entries: CollectionEntry[] }) {
     Epic: entries.filter((entry) => creatures.find((creature) => creature.id === entry.creatureId)?.rarity === "Epic").length
   };
 
+  // Next unlock hint: first uncaught creature
+  const nextUncaught = allCreatures.find((c) => !caughtIds.has(c.id));
+  const nextSpot = nextUncaught ? studySpots.find((s) => s.featuredCreatureId === nextUncaught.id) : null;
+
   return (
     <div className="space-y-6">
+      {/* Progress header */}
       <div className="panel p-5 sm:p-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex-1">
             <div className="flex items-baseline gap-2">
-              <span className="font-serif text-2xl text-ink">
+              <span className="font-serif text-3xl font-bold text-ink">
                 {caughtCount}
-                <span className="text-ink/40">/{totalCount}</span>
+                <span className="text-ink/30">/{totalCount}</span>
               </span>
               <span className="text-sm text-ink/60">creatures caught</span>
+              <span className="ml-1 rounded-full bg-moss/10 px-2 py-0.5 text-xs font-bold text-moss">
+                {progressPct}%
+              </span>
             </div>
             <div className="mt-3 h-2.5 w-full overflow-hidden rounded-full bg-moss/10">
               <div
@@ -94,14 +102,33 @@ export function CollectionGrid({ entries }: { entries: CollectionEntry[] }) {
                 style={{ width: `${progressPct}%` }}
               />
             </div>
+            {nextSpot && nextUncaught && (
+              <p className="mt-2.5 text-xs text-ink/50">
+                Next unlock: Study at{" "}
+                <span className="font-semibold text-ink/70">{nextSpot.name}</span>{" "}
+                to find a {nextUncaught.rarity.toLowerCase()} creature.
+              </p>
+            )}
           </div>
-          <div className="flex gap-3 text-center">
+
+          {/* Per-rarity mini stats */}
+          <div className="flex gap-4 text-center">
             {(["Common", "Rare", "Epic"] as const).map((rarity) => (
               <div key={rarity} className="min-w-[4.5rem]">
-                <div className="text-xs font-semibold uppercase tracking-wider text-ink/40">{rarity}</div>
+                <div className="text-[10px] font-semibold uppercase tracking-wider text-ink/35">{rarity}</div>
                 <div className="mt-0.5 font-serif text-lg text-ink">
                   {caughtByRarity[rarity]}
-                  <span className="text-ink/30">/{rarityCounts[rarity]}</span>
+                  <span className="text-ink/25">/{rarityCounts[rarity]}</span>
+                </div>
+                <div className="mx-auto mt-1.5 h-1 w-10 overflow-hidden rounded-full bg-ink/[0.06]">
+                  <div
+                    className={`h-full rounded-full transition-all duration-500 ${
+                      rarity === "Epic" ? "bg-purple-500" : rarity === "Rare" ? "bg-orange-400" : "bg-amber"
+                    }`}
+                    style={{
+                      width: `${rarityCounts[rarity] > 0 ? (caughtByRarity[rarity] / rarityCounts[rarity]) * 100 : 0}%`
+                    }}
+                  />
                 </div>
               </div>
             ))}
@@ -109,6 +136,7 @@ export function CollectionGrid({ entries }: { entries: CollectionEntry[] }) {
         </div>
       </div>
 
+      {/* Filter bar */}
       <div className="flex flex-wrap gap-2">
         {filters.map((item) => (
           <Button
@@ -119,20 +147,38 @@ export function CollectionGrid({ entries }: { entries: CollectionEntry[] }) {
             onClick={() => setFilter(item)}
           >
             {item}
+            {item !== "All" && (
+              <span className="ml-1 text-[10px] opacity-60">
+                {caughtByRarity[item as keyof typeof caughtByRarity]}/{rarityCounts[item as keyof typeof rarityCounts]}
+              </span>
+            )}
           </Button>
         ))}
       </div>
 
+      {/* Creature grid */}
       <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
         {filtered.map((creature, index) => {
           const caught = caughtIds.has(creature.id);
           const entry = entries.find((item) => item.creatureId === creature.id);
           const spot = entry ? getSpotById(entry.originSpotId) : null;
+          const hintSpot = !caught ? studySpots.find((s) => s.featuredCreatureId === creature.id) : null;
 
           return caught ? (
-            <CaughtCard key={creature.id} creature={creature} spotCode={spot?.buildingCode} acquiredAt={entry?.acquiredAt ?? ""} delay={index * 45} />
+            <CaughtCard
+              key={creature.id}
+              creature={creature}
+              spotCode={spot?.buildingCode}
+              acquiredAt={entry?.acquiredAt ?? ""}
+              delay={index * 45}
+            />
           ) : (
-            <LockedCard key={creature.id} creature={creature} delay={index * 45} />
+            <LockedCard
+              key={creature.id}
+              creature={creature}
+              hintSpotName={hintSpot?.name}
+              delay={index * 45}
+            />
           );
         })}
       </div>
@@ -156,9 +202,7 @@ function CaughtCard({
       <div className={`relative overflow-hidden bg-gradient-to-br ${creature.accent} p-6 text-white`}>
         <div className="pointer-events-none absolute -right-6 -top-6 h-28 w-28 rounded-full bg-white/10" />
         <div className="pointer-events-none absolute -bottom-4 -left-4 h-20 w-20 rounded-full bg-white/[0.07]" />
-        <div className="relative z-10 text-6xl drop-shadow-lg transition-transform duration-300 group-hover:scale-110">
-          {creature.illustration}
-        </div>
+        <div className="relative z-10 text-6xl drop-shadow-lg">{creature.illustration}</div>
         <span className={`mt-3 inline-block rounded-full px-3 py-0.5 text-[10px] font-bold uppercase tracking-[0.2em] ${rarityBadgeClasses(creature.rarity)}`}>
           {creature.rarity}
         </span>
@@ -167,7 +211,10 @@ function CaughtCard({
       <div className="p-5">
         <p className="text-sm leading-relaxed text-ink/80">{creature.description}</p>
         <div className="mt-4 flex items-center justify-between border-t border-ink/[0.06] pt-3 text-xs text-ink/55">
-          <Badge variant="moss" className="px-2.5">{spotCode ?? "Unknown"}</Badge>
+          <div className="flex items-center gap-1.5">
+            <MapPin className="h-3 w-3" />
+            <Badge variant="moss" className="px-2.5">{spotCode ?? "Unknown"}</Badge>
+          </div>
           <span>{formatDateLabel(acquiredAt)}</span>
         </div>
       </div>
@@ -175,13 +222,13 @@ function CaughtCard({
   );
 }
 
-function LockedCard({ creature, delay }: { creature: Creature; delay: number }) {
+function LockedCard({ creature, hintSpotName, delay }: { creature: Creature; hintSpotName?: string; delay: number }) {
   return (
-    <Reveal delay={delay} className="panel overflow-hidden opacity-70 transition-all duration-300 hover:opacity-85">
+    <Reveal delay={delay} className="panel overflow-hidden opacity-65 transition-all duration-300 hover:opacity-80">
       <div className="relative overflow-hidden bg-gradient-to-br from-stone-200 to-stone-300 p-6">
         <div className="pointer-events-none absolute -right-6 -top-6 h-28 w-28 rounded-full bg-white/10" />
         <div className="pointer-events-none absolute -bottom-4 -left-4 h-20 w-20 rounded-full bg-white/[0.07]" />
-        <div className="relative z-10 text-6xl grayscale opacity-40">{creature.illustration}</div>
+        <div className="relative z-10 text-6xl opacity-30 grayscale">{creature.illustration}</div>
         <Badge variant="cream" className="mt-3 border-stone-400/30 bg-stone-400/20 text-stone-500">
           {creature.rarity}
         </Badge>
@@ -189,9 +236,14 @@ function LockedCard({ creature, delay }: { creature: Creature; delay: number }) 
       </div>
       <div className="p-5">
         <p className="text-sm italic leading-relaxed text-ink/40">
-          Study at the right spot to discover this creature.
+          {hintSpotName
+            ? `Study at ${hintSpotName} to discover this creature.`
+            : "Study at the right spot to discover this creature."}
         </p>
-        <div className="mt-4 border-t border-ink/[0.06] pt-3 text-xs text-ink/35">Not yet caught</div>
+        <div className="mt-4 flex items-center gap-1.5 border-t border-ink/[0.06] pt-3 text-xs text-ink/30">
+          <Lock className="h-3 w-3" />
+          Not yet caught
+        </div>
       </div>
     </Reveal>
   );

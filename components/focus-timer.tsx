@@ -2,12 +2,13 @@
 
 import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { MapPin, Pause, Play, RotateCcw, Sparkles } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, CheckCircle2, MapPin, Pause, Play, RotateCcw, Sparkles, Trophy } from "lucide-react";
 import { completeFocusSession } from "@/lib/actions";
 import { getCreatureById, getSpotBySlug } from "@/lib/mock-data";
 import { getXpForDuration } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Reveal } from "@/components/ui/reveal";
 import { useToast } from "@/components/ui/toast-provider";
@@ -144,6 +145,78 @@ function ConfettiBurst() {
   );
 }
 
+// ── Completion summary shown after a session finishes ────────────────────────
+
+function CompletionSummary({
+  xpEarned,
+  durationMinutes,
+  creature,
+  onReset
+}: {
+  xpEarned: number;
+  durationMinutes: number;
+  creature: { name: string; illustration: string; rarity: string; description: string } | null;
+  onReset: () => void;
+}) {
+  return (
+    <div className="space-y-5">
+      <div className="text-center">
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-moss/10 text-moss">
+          <CheckCircle2 className="h-8 w-8" />
+        </div>
+        <h3 className="mt-4 font-serif text-3xl text-ink">Session complete</h3>
+        <p className="mt-2 text-sm text-ink/60">
+          Great work staying focused for {durationMinutes} minutes.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div className="rounded-2xl border border-fern/20 bg-gradient-to-br from-moss/[0.06] to-fern/[0.08] p-4 text-center">
+          <Sparkles className="mx-auto h-5 w-5 text-moss/60" />
+          <p className="mt-2 font-serif text-2xl font-bold text-ink">+{xpEarned}</p>
+          <p className="mt-0.5 text-xs font-medium text-ink/50">XP earned</p>
+        </div>
+        <div className="rounded-2xl border border-amber/20 bg-gradient-to-br from-amber/[0.08] to-coral/[0.05] p-4 text-center">
+          <Trophy className="mx-auto h-5 w-5 text-amber-700/60" />
+          <p className="mt-2 font-serif text-2xl font-bold text-ink">{durationMinutes}m</p>
+          <p className="mt-0.5 text-xs font-medium text-ink/50">Focused</p>
+        </div>
+      </div>
+
+      {creature && (
+        <div className="overflow-hidden rounded-2xl border border-amber/25 bg-gradient-to-r from-amber/10 via-white/80 to-fern/10">
+          <div className="flex items-center gap-4 p-5">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-amber/20 text-3xl shadow-sm">
+              {creature.illustration}
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2">
+                <p className="font-serif text-xl font-semibold text-ink">{creature.name}</p>
+                <Badge variant="amber">{creature.rarity}</Badge>
+              </div>
+              <p className="mt-1 text-sm text-ink/60">{creature.description}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <Button onClick={onReset} className="flex-1 gap-2">
+          <Play className="h-4 w-4" />
+          Start another session
+        </Button>
+        <Link
+          href="/collection"
+          className={buttonVariants({ variant: "secondary", className: "flex-1 gap-2" })}
+        >
+          View collection
+          <ArrowRight className="h-4 w-4" />
+        </Link>
+      </div>
+    </div>
+  );
+}
+
 export function FocusTimer({ initialSpotSlug }: { initialSpotSlug?: string }) {
   const router = useRouter();
   const defaultSlug = initialSpotSlug || "perry-castaneda-library";
@@ -156,11 +229,14 @@ export function FocusTimer({ initialSpotSlug }: { initialSpotSlug?: string }) {
   const [hydrated, setHydrated] = useState(false);
   const [caughtCreatureId, setCaughtCreatureId] = useState<string | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [sessionComplete, setSessionComplete] = useState(false);
+  const [earnedXp, setEarnedXp] = useState(0);
   const [isPending, startTransition] = useTransition();
 
   const spot = getSpotBySlug(spotSlug) ?? getSpotBySlug("perry-castaneda-library");
   const totalSeconds = selectedDuration * 60;
   const creature = caughtCreatureId ? getCreatureById(caughtCreatureId) : null;
+  const progressPct = totalSeconds > 0 ? Math.round(((totalSeconds - secondsLeft) / totalSeconds) * 100) : 0;
 
   useEffect(() => {
     const saved = loadSession();
@@ -217,6 +293,8 @@ export function FocusTimer({ initialSpotSlug }: { initialSpotSlug?: string }) {
       startTransition(async () => {
         const result = await completeFocusSession(formData);
         setCaughtCreatureId(result.grantedCreatureId ?? null);
+        setEarnedXp(result.xpEarned);
+        setSessionComplete(true);
 
         if (result.grantedCreatureId) {
           const grantedCreature = getCreatureById(result.grantedCreatureId);
@@ -263,6 +341,7 @@ export function FocusTimer({ initialSpotSlug }: { initialSpotSlug?: string }) {
     setSecondsLeft(duration * 60);
     setRunning(false);
     setCaughtCreatureId(null);
+    setSessionComplete(false);
     persist(false, duration * 60, duration, spotSlug);
   }
 
@@ -276,12 +355,9 @@ export function FocusTimer({ initialSpotSlug }: { initialSpotSlug?: string }) {
     setRunning(false);
     setSecondsLeft(selectedDuration * 60);
     setCaughtCreatureId(null);
+    setSessionComplete(false);
+    setEarnedXp(0);
     clearSession();
-    pushToast({
-      tone: "info",
-      title: "Timer reset",
-      description: "Session state cleared. Pick a fresh block when you’re ready."
-    });
   }
 
   return (
@@ -290,69 +366,109 @@ export function FocusTimer({ initialSpotSlug }: { initialSpotSlug?: string }) {
         <Card className="relative overflow-hidden bg-hero-grid p-6 sm:p-8">
           {showConfetti ? <ConfettiBurst /> : null}
 
-          <p className="eyebrow">Focus Session</p>
-          <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-moss/8 px-3 py-1.5">
-            <MapPin className="h-3.5 w-3.5 text-moss/70" />
-            <span className="text-xs font-semibold text-moss">{spot?.name}</span>
-          </div>
-
-          <div className="my-8">
-            <TimerRing
-              secondsLeft={secondsLeft}
-              totalSeconds={totalSeconds}
-              timeLabel={timeLabel}
-              running={running}
-            />
-          </div>
-
-          <div className="flex flex-wrap justify-center gap-3">
-            {durations.map((duration) => (
-              <Button
-                key={duration}
-                variant={selectedDuration === duration ? "primary" : "secondary"}
-                disabled={running}
-                onClick={() => handleDurationChange(duration)}
-              >
-                {duration} min
-                <span className="text-[10px] font-medium opacity-70">+{getXpForDuration(duration)}</span>
-              </Button>
-            ))}
-          </div>
-
-          <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <Button onClick={handleToggle}>
-              {running ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-              {running ? "Pause" : secondsLeft < totalSeconds ? "Resume" : "Start"}
-            </Button>
-            <Button variant="secondary" onClick={handleReset}>
-              <RotateCcw className="h-4 w-4" />
-              Reset
-            </Button>
-          </div>
-
-          {creature ? (
-            <div className="mt-6 rounded-3xl border border-amber/20 bg-white/70 p-4">
-              <div className="flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber/20 text-2xl">
-                  {creature.illustration}
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-moss">Creature caught</p>
-                  <p className="font-serif text-2xl text-ink">{creature.name}</p>
-                </div>
-                <Badge variant="amber" className="ml-auto">
-                  {creature.rarity}
-                </Badge>
+          {/* Header with spot + progress badge */}
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="eyebrow">Focus Session</p>
+              <div className="mt-2 inline-flex items-center gap-2 rounded-full bg-moss/8 px-3 py-1.5">
+                <MapPin className="h-3.5 w-3.5 text-moss/70" />
+                <span className="text-xs font-semibold text-moss">{spot?.name}</span>
               </div>
             </div>
-          ) : null}
+            {running && (
+              <Badge variant="moss" className="animate-pulse">{progressPct}%</Badge>
+            )}
+          </div>
 
-          {isPending ? <p className="mt-4 text-center text-sm text-ink/60">Saving your session...</p> : null}
+          {/* Completion state or active timer */}
+          {sessionComplete ? (
+            <div className="mt-8">
+              <CompletionSummary
+                xpEarned={earnedXp}
+                durationMinutes={selectedDuration}
+                creature={creature ? {
+                  name: creature.name,
+                  illustration: creature.illustration,
+                  rarity: creature.rarity,
+                  description: creature.description
+                } : null}
+                onReset={handleReset}
+              />
+            </div>
+          ) : (
+            <>
+              <div className="my-6">
+                <TimerRing
+                  secondsLeft={secondsLeft}
+                  totalSeconds={totalSeconds}
+                  timeLabel={timeLabel}
+                  running={running}
+                />
+              </div>
+
+              {/* Segmented duration control */}
+              <div className="flex justify-center">
+                <div className="inline-flex rounded-2xl border border-moss/10 bg-white/60 p-1">
+                  {durations.map((duration) => (
+                    <button
+                      key={duration}
+                      disabled={running}
+                      onClick={() => handleDurationChange(duration)}
+                      className={`rounded-xl px-5 py-2.5 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss focus-visible:ring-offset-2 disabled:cursor-not-allowed ${
+                        selectedDuration === duration
+                          ? "bg-moss text-cream shadow-sm"
+                          : "text-ink/60 hover:text-ink disabled:opacity-40"
+                      }`}
+                    >
+                      {duration}m
+                      <span className="ml-1 text-[10px] font-medium opacity-60">+{getXpForDuration(duration)}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Play / reset controls */}
+              <div className="mt-6 flex justify-center gap-3">
+                <Button onClick={handleToggle} size="lg" className="min-w-[140px] gap-2">
+                  {running ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                  {running ? "Pause" : secondsLeft < totalSeconds ? "Resume" : "Start"}
+                </Button>
+                {(running || secondsLeft < totalSeconds) && (
+                  <Button variant="secondary" size="lg" onClick={handleReset}>
+                    <RotateCcw className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+            </>
+          )}
+
+          {isPending ? <p className="mt-4 text-center text-sm text-ink/50">Saving your session...</p> : null}
         </Card>
       </Reveal>
 
       <div className="flex flex-col gap-6">
+        {/* Session info card */}
         <Reveal delay={80}>
+          <Card className="p-6">
+            <p className="eyebrow">Session info</p>
+            <div className="mt-4 space-y-3">
+              <div className="flex items-center justify-between rounded-2xl bg-cream/60 px-4 py-3">
+                <span className="text-sm text-ink/70">Duration</span>
+                <span className="text-sm font-bold text-ink">{selectedDuration} min</span>
+              </div>
+              <div className="flex items-center justify-between rounded-2xl bg-cream/60 px-4 py-3">
+                <span className="text-sm text-ink/70">XP reward</span>
+                <span className="text-sm font-bold text-moss">+{getXpForDuration(selectedDuration)}</span>
+              </div>
+              <div className="flex items-center justify-between rounded-2xl bg-cream/60 px-4 py-3">
+                <span className="text-sm text-ink/70">Creature chance</span>
+                <span className="text-sm font-bold text-ink">55%</span>
+              </div>
+            </div>
+          </Card>
+        </Reveal>
+
+        <Reveal delay={120}>
           <Card className="p-6">
             <p className="eyebrow">How It Works</p>
             <div className="mt-4 space-y-4 text-sm leading-6 text-ink/80">
@@ -360,40 +476,38 @@ export function FocusTimer({ initialSpotSlug }: { initialSpotSlug?: string }) {
                 <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-moss/8 text-[11px] font-bold text-moss">
                   1
                 </span>
-                <p>
-                  Choose 25, 45, or 60 minutes depending on how deep you want to go and how much XP you want to earn.
-                </p>
+                <p>Pick 25, 45, or 60 minutes and earn proportional XP.</p>
               </div>
               <div className="flex gap-3">
                 <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-moss/8 text-[11px] font-bold text-moss">
                   2
                 </span>
-                <p>Start the timer and let the progress ring carry the countdown while you stay on task.</p>
+                <p>Start the timer and stay focused until it completes.</p>
               </div>
               <div className="flex gap-3">
                 <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-moss/8 text-[11px] font-bold text-moss">
                   3
                 </span>
-                <p>When the block ends, your XP is logged and you may catch the featured creature for your current spot.</p>
+                <p>Earn XP and a chance to catch this spot&apos;s featured creature.</p>
               </div>
             </div>
           </Card>
         </Reveal>
 
-        <Reveal delay={140}>
-          <Button
-            variant="secondary"
-            className="panel h-auto justify-start p-5 text-left"
+        <Reveal delay={160}>
+          <button
             onClick={() => router.push("/spots")}
+            className="flex w-full items-center gap-4 rounded-3xl border border-white/60 bg-white/80 p-5 text-left shadow-panel backdrop-blur transition hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss focus-visible:ring-offset-2"
           >
             <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-lake/10 text-lake">
               <MapPin className="h-5 w-5" />
             </div>
-            <div>
+            <div className="flex-1">
               <p className="text-sm font-semibold text-ink">Change study spot</p>
               <p className="text-xs text-ink/60">Currently at {spot?.buildingCode}</p>
             </div>
-          </Button>
+            <ArrowRight className="h-4 w-4 text-ink/30" />
+          </button>
         </Reveal>
       </div>
     </div>
