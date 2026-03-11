@@ -16,6 +16,7 @@ import {
   rerankMeetingPlan,
   type MeetingPlan
 } from "./planner.js";
+import { applyLivePclAvailability } from "./pcl.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -146,7 +147,7 @@ function buildServer(): McpServer {
     },
     async (input) => {
       const parsed = createMeetingRequestSchema.parse(input);
-      const plan = createMeetingPlan(parsed);
+      const plan = await applyLivePclAvailability(createMeetingPlan(parsed));
       meetingStore.set(plan.meetingId, plan);
       return buildToolResult(
         plan,
@@ -176,7 +177,7 @@ function buildServer(): McpServer {
         throw new Error(`Unknown meeting: ${parsed.meetingId}`);
       }
 
-      const updated = collectAvailability(current);
+      const updated = await applyLivePclAvailability(collectAvailability(current));
       meetingStore.set(updated.meetingId, updated);
       return buildToolResult(updated, "Updated attendee responses and refreshed the top overlaps.");
     }
@@ -203,7 +204,7 @@ function buildServer(): McpServer {
         throw new Error(`Unknown meeting: ${parsed.meetingId}`);
       }
 
-      const updated = rerankMeetingPlan(current, parsed.reason);
+      const updated = await applyLivePclAvailability(rerankMeetingPlan(current, parsed.reason));
       meetingStore.set(updated.meetingId, updated);
       return buildToolResult(updated, "Reranked the best slots with a slightly later start window.");
     }
