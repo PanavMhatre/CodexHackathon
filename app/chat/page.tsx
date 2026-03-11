@@ -19,7 +19,6 @@ import {
   Navigation
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 
 const SpotMap = dynamic(() => import("@/components/spot-map"), { ssr: false });
 
@@ -477,12 +476,12 @@ export default function ChatPage() {
                   I can find spots, book them, start sessions, and manage your tasks — just ask.
                 </p>
               </div>
-              <div className="flex w-full max-w-full gap-3 overflow-x-auto pb-2 text-left">
+              <div className="grid w-full max-w-2xl gap-2 sm:grid-cols-2">
                 {SUGGESTED.map(prompt => (
                   <button
                     key={prompt}
                     onClick={() => sendMessage(prompt)}
-                    className="min-w-[240px] rounded-2xl border border-moss/15 bg-white/80 px-4 py-3 text-left text-sm font-medium text-ink shadow-sm transition hover:border-moss/30 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss focus-visible:ring-offset-2 focus-visible:ring-offset-cream sm:min-w-[280px]"
+                    className="rounded-2xl border border-moss/15 bg-white/80 px-4 py-3 text-left text-sm font-medium text-ink/80 shadow-sm transition hover:border-moss/30 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
                   >
                     {prompt}
                   </button>
@@ -512,14 +511,18 @@ export default function ChatPage() {
             placeholder="Ask me anything — find a spot, start a session, add a task…"
             rows={1}
             disabled={loading}
-            className="flex-1 resize-none bg-transparent py-1 text-sm leading-5 text-ink placeholder:text-ink/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss focus-visible:ring-offset-2 focus-visible:ring-offset-cream disabled:opacity-50"
+            className="flex-1 resize-none bg-transparent py-1 text-sm leading-5 text-ink placeholder:text-ink/40 focus:outline-none disabled:opacity-50"
             style={{ maxHeight: 160 }}
           />
-          <Button
+          <button
             type="submit"
             disabled={!input.trim() || loading}
-            size="icon"
-            className={cn("h-11 w-11 shrink-0", !input.trim() || loading ? "bg-moss/10 text-moss/30 hover:bg-moss/10" : "")}
+            className={cn(
+              "flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss focus-visible:ring-offset-2 focus-visible:ring-offset-cream",
+              input.trim() && !loading
+                ? "bg-moss text-cream hover:bg-moss/90"
+                : "bg-moss/10 text-moss/30"
+            )}
             aria-label="Send chat message"
           >
             {loading ? (
@@ -527,7 +530,7 @@ export default function ChatPage() {
             ) : (
               <Send className="h-4 w-4" />
             )}
-          </Button>
+          </button>
         </form>
       </div>
     </AppShell>
