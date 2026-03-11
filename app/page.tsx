@@ -3,8 +3,10 @@ import { Flame, Sparkles, Trophy } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { SectionHeader } from "@/components/section-header";
 import { SessionHistory } from "@/components/session-history";
+import { StudyCalendar } from "@/components/study-calendar";
 import { StatCard } from "@/components/stat-card";
 import { dashboardSnapshot, getSpotById, studySpots } from "@/lib/mock-data";
+import { StudySession } from "@/lib/types";
 import { createClient } from "@/lib/supabase/server";
 import { hasSupabaseEnv } from "@/lib/supabase/env";
 
@@ -21,6 +23,7 @@ export default async function DashboardPage() {
   let level = dashboardSnapshot.profile.level;
   let collectionCount = dashboardSnapshot.collection.length;
   let lastCaughtCode = getSpotById(dashboardSnapshot.recentSessions[0]?.studySpotId)?.buildingCode ?? featuredSpot.buildingCode;
+  let sessions: StudySession[] = dashboardSnapshot.recentSessions;
 
   if (hasSupabaseEnv()) {
     const supabase = createClient();
@@ -30,16 +33,14 @@ export default async function DashboardPage() {
       const fullName = user.user_metadata?.full_name || user.email?.split("@")[0] || firstName;
       firstName = (fullName as string).split(" ")[0];
 
-      const [profileRes, collectionRes, lastSessionRes] = await Promise.all([
+      const [profileRes, collectionRes, sessionsRes] = await Promise.all([
         supabase.from("profiles").select("xp, streak").eq("id", user.id).single(),
         supabase.from("user_creatures").select("id", { count: "exact", head: true }).eq("user_id", user.id),
         supabase
           .from("study_sessions")
-          .select("study_spots ( building_code )")
+          .select("id, study_spot_id, duration_minutes, xp_earned, creature_granted_id, completed_at")
           .eq("user_id", user.id)
           .order("completed_at", { ascending: false })
-          .limit(1)
-          .single()
       ]);
 
       if (profileRes.data) {
@@ -50,9 +51,17 @@ export default async function DashboardPage() {
 
       collectionCount = collectionRes.count ?? 0;
 
-      const lastSpot = (lastSessionRes.data as any)?.study_spots;
-      if (lastSpot?.building_code) {
-        lastCaughtCode = lastSpot.building_code;
+      if (sessionsRes.data && sessionsRes.data.length > 0) {
+        sessions = sessionsRes.data.map((row: any) => ({
+          id: row.id,
+          studySpotId: row.study_spot_id,
+          durationMinutes: row.duration_minutes,
+          xpEarned: row.xp_earned,
+          creatureGrantedId: row.creature_granted_id,
+          completedAt: row.completed_at,
+        }));
+        const firstSpot = getSpotById(sessions[0].studySpotId);
+        if (firstSpot) lastCaughtCode = firstSpot.buildingCode;
       }
     }
   }
@@ -89,7 +98,10 @@ export default async function DashboardPage() {
       </section>
 
       <section className="mt-6 grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
-        <SessionHistory sessions={dashboardSnapshot.recentSessions} />
+        <div className="flex flex-col gap-6">
+          <StudyCalendar sessions={sessions} />
+          <SessionHistory sessions={sessions} />
+        </div>
 
         <div className="panel p-5">
           <p className="eyebrow">Featured Spot</p>
