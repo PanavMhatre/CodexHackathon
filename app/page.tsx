@@ -98,36 +98,36 @@ export default async function DashboardPage() {
       </section>
 
       <section className="mt-6 grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
-        <div className="flex flex-col gap-6">
-          <StudyCalendar sessions={sessions} />
-          <SessionHistory sessions={sessions} />
-        </div>
+        <SessionHistory sessions={sessions} />
 
-        <div className="panel p-5">
-          <p className="eyebrow">Featured Spot</p>
-          <h3 className="mt-2 text-2xl font-semibold text-ink">{featuredSpot.name}</h3>
-          <p className="mt-3 text-sm leading-6 text-ink/70">{featuredSpot.longDescription}</p>
-          <div className="mt-5 flex flex-wrap gap-2">
-            {featuredSpot.tags.map((tag) => (
-              <span key={tag} className="rounded-full bg-moss/8 px-3 py-1 text-xs font-medium text-moss">
-                {tag}
-              </span>
-            ))}
+        <div className="flex flex-col gap-6">
+          <div className="panel p-5">
+            <p className="eyebrow">Featured Spot</p>
+            <h3 className="mt-2 text-2xl font-semibold text-ink">{featuredSpot.name}</h3>
+            <p className="mt-3 text-sm leading-6 text-ink/70">{featuredSpot.longDescription}</p>
+            <div className="mt-5 flex flex-wrap gap-2">
+              {featuredSpot.tags.map((tag) => (
+                <span key={tag} className="rounded-full bg-moss/8 px-3 py-1 text-xs font-medium text-moss">
+                  {tag}
+                </span>
+              ))}
+            </div>
+            <div className="mt-6 grid gap-3 sm:grid-cols-2">
+              <Link
+                href={`/spots/${featuredSpot.slug}`}
+                className="rounded-2xl bg-moss px-4 py-3 text-center text-sm font-semibold text-cream"
+              >
+                Open spot details
+              </Link>
+              <Link
+                href={`/focus?spot=${featuredSpot.slug}`}
+                className="rounded-2xl border border-moss/15 bg-white px-4 py-3 text-center text-sm font-semibold text-ink"
+              >
+                Start focus timer
+              </Link>
+            </div>
           </div>
-          <div className="mt-6 grid gap-3 sm:grid-cols-2">
-            <Link
-              href={`/spots/${featuredSpot.slug}`}
-              className="rounded-2xl bg-moss px-4 py-3 text-center text-sm font-semibold text-cream"
-            >
-              Open spot details
-            </Link>
-            <Link
-              href={`/focus?spot=${featuredSpot.slug}`}
-              className="rounded-2xl border border-moss/15 bg-white px-4 py-3 text-center text-sm font-semibold text-ink"
-            >
-              Start focus timer
-            </Link>
-          </div>
+          <StudyCalendar sessions={sessions} />
         </div>
       </section>
     </AppShell>
